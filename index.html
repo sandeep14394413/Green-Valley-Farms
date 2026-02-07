@@ -1,649 +1,647 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Green Valley Farms - Fresh Organic Farm Products Delivered Daily">
-    <title>Green Valley Farms - Premium Organic Products</title>
-    
-    <link href="https://unpkg.com/tailwindcss@3.4.1/dist/tailwind.min.css" rel="stylesheet">
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
-    
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
-        
-        * { font-family: 'Poppins', sans-serif; }
-        
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-30px) rotate(5deg); }
-        }
-        
-        @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 30px rgba(34, 197, 94, 0.4), 0 0 60px rgba(16, 185, 129, 0.2); }
-            50% { box-shadow: 0 0 50px rgba(34, 197, 94, 0.8), 0 0 100px rgba(16, 185, 129, 0.4); }
-        }
-        
-        @keyframes shimmer {
-            0% { background-position: -1000px 0; }
-            100% { background-position: 1000px 0; }
-        }
-        
-        @keyframes gradient-shift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        
-        @keyframes slide-up {
-            0% { transform: translateY(50px); opacity: 0; }
-            100% { transform: translateY(0); opacity: 1; }
-        }
-        
-        @keyframes scale-pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        
-        @keyframes rotate-slow {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .float-animation { animation: float 6s ease-in-out infinite; }
-        .glow-pulse { animation: pulse-glow 3s ease-in-out infinite; }
-        .shimmer {
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            background-size: 1000px 100%;
-            animation: shimmer 3s infinite;
-        }
-        .slide-up { animation: slide-up 0.6s ease-out; }
-        .scale-pulse { animation: scale-pulse 2s ease-in-out infinite; }
-        
-        .gradient-mesh {
-            background: 
-                radial-gradient(at 40% 20%, rgba(34, 197, 94, 0.3) 0px, transparent 50%),
-                radial-gradient(at 80% 0%, rgba(16, 185, 129, 0.3) 0px, transparent 50%),
-                radial-gradient(at 0% 50%, rgba(5, 150, 105, 0.3) 0px, transparent 50%),
-                radial-gradient(at 80% 50%, rgba(20, 184, 166, 0.3) 0px, transparent 50%),
-                radial-gradient(at 0% 100%, rgba(6, 182, 212, 0.3) 0px, transparent 50%),
-                radial-gradient(at 80% 100%, rgba(34, 197, 94, 0.3) 0px, transparent 50%),
-                linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-            animation: gradient-shift 20s ease infinite;
-            background-size: 200% 200%;
-        }
-        
-        .glass {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-        
-        .glass-dark {
-            background: rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .text-shadow { text-shadow: 2px 4px 8px rgba(0,0,0,0.1); }
-        
-        .glow-green {
-            box-shadow: 0 0 20px rgba(34, 197, 94, 0.4),
-                        0 0 40px rgba(34, 197, 94, 0.2),
-                        inset 0 0 20px rgba(34, 197, 94, 0.1);
-        }
-        
-        .card-3d {
-            transform-style: preserve-3d;
-            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-        }
-        
-        .card-3d:hover {
-            transform: translateY(-10px) rotateX(5deg) rotateY(5deg);
-        }
-        
-        .image-glow::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(45deg, rgba(34, 197, 94, 0.3), rgba(16, 185, 129, 0.3));
-            opacity: 0;
-            transition: opacity 0.5s;
-            border-radius: inherit;
-        }
-        
-        .image-glow:hover::after { opacity: 1; }
-        
-        .particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            overflow: hidden;
-        }
-        
-        .particle {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            background: rgba(34, 197, 94, 0.6);
-            border-radius: 50%;
-            animation: float 15s infinite;
-        }
-        
-        html { scroll-behavior: smooth; }
-        
-        ::-webkit-scrollbar { width: 12px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { 
-            background: linear-gradient(180deg, #22c55e, #10b981); 
-            border-radius: 6px;
-        }
-        ::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #16a34a, #059669); }
-    </style>
-</head>
-<body class="gradient-mesh overflow-x-hidden">
-    <!-- Floating Particles -->
-    <div class="particles" id="particles"></div>
-    
-    <div id="root"></div>
+import React, { useState, useEffect } from 'react';
+import { Leaf, ShoppingCart, Phone, Mail, MapPin, User, Lock, Menu, X, Package, TrendingUp, Award, Users, Heart, Star, CheckCircle, Clock, Truck, Shield } from 'lucide-react';
 
-    <script type="text/babel">
-        const { useState, useEffect } = React;
-        const { Leaf, ShoppingCart, Phone, Mail, MapPin, User, Menu, X, Package, TrendingUp, Award, Users, Heart, Star, CheckCircle, Clock, Truck, Shield, Sparkles, Zap } = lucide;
+const GreenValleyFarms = () => {
+  const [activeSection, setActiveSection] = useState('home');
+  const [showLogin, setShowLogin] = useState(false);
+  const [showRegister, setShowRegister] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [cart, setCart] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [customers, setCustomers] = useState([]);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  
+  const [loginForm, setLoginForm] = useState({ email: '', password: '' });
+  const [registerForm, setRegisterForm] = useState({
+    name: '', email: '', phone: '', address: '', password: ''
+  });
+  const [orderForm, setOrderForm] = useState({
+    customerName: '', phone: '', address: '', items: '', notes: ''
+  });
 
-        // Create floating particles
-        useEffect(() => {
-            const container = document.getElementById('particles');
-            for (let i = 0; i < 30; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.top = Math.random() * 100 + '%';
-                particle.style.animationDelay = Math.random() * 15 + 's';
-                particle.style.animationDuration = (10 + Math.random() * 10) + 's';
-                container?.appendChild(particle);
-            }
-        }, []);
+  useEffect(() => {
+    const handleMouse = (e) => setMousePos({ x: e.clientX, y: e.clientY });
+    window.addEventListener('mousemove', handleMouse);
+    loadCustomers();
+    loadOrders();
+    checkLogin();
+    return () => window.removeEventListener('mousemove', handleMouse);
+  }, []);
 
-        const GreenValleyFarms = () => {
-          const [activeSection, setActiveSection] = useState('home');
-          const [showLogin, setShowLogin] = useState(false);
-          const [showRegister, setShowRegister] = useState(false);
-          const [isLoggedIn, setIsLoggedIn] = useState(false);
-          const [currentUser, setCurrentUser] = useState(null);
-          const [cart, setCart] = useState([]);
-          const [orders, setOrders] = useState([]);
-          const [customers, setCustomers] = useState([]);
-          const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-          const [showMobileMenu, setShowMobileMenu] = useState(false);
-          
-          const [loginForm, setLoginForm] = useState({ email: '', password: '' });
-          const [registerForm, setRegisterForm] = useState({
-            name: '', email: '', phone: '', address: '', password: ''
-          });
-          const [orderForm, setOrderForm] = useState({
-            customerName: '', phone: '', address: '', items: '', notes: ''
-          });
+  const checkLogin = async () => {
+    try {
+      const session = await window.storage.get('farm_session');
+      if (session?.value) {
+        const user = JSON.parse(session.value);
+        setCurrentUser(user);
+        setIsLoggedIn(true);
+      }
+    } catch (e) {}
+  };
 
-          useEffect(() => {
-            const handleMouse = (e) => setMousePos({ x: e.clientX, y: e.clientY });
-            window.addEventListener('mousemove', handleMouse);
-            loadCustomers();
-            loadOrders();
-            checkLogin();
-            lucide.createIcons();
-            return () => window.removeEventListener('mousemove', handleMouse);
-          }, []);
+  const loadCustomers = async () => {
+    try {
+      const keys = await window.storage.list('customer:');
+      if (keys?.keys) {
+        const loaded = [];
+        for (const key of keys.keys) {
+          const result = await window.storage.get(key);
+          if (result?.value) loaded.push(JSON.parse(result.value));
+        }
+        setCustomers(loaded);
+      }
+    } catch (e) {}
+  };
 
-          useEffect(() => {
-            lucide.createIcons();
-          }, [activeSection, showLogin, showRegister, customers, orders]);
+  const loadOrders = async () => {
+    try {
+      const keys = await window.storage.list('order:');
+      if (keys?.keys) {
+        const loaded = [];
+        for (const key of keys.keys) {
+          const result = await window.storage.get(key);
+          if (result?.value) loaded.push(JSON.parse(result.value));
+        }
+        setOrders(loaded);
+      }
+    } catch (e) {}
+  };
 
-          const checkLogin = async () => {
-            try {
-              const session = await window.storage.get('farm_session');
-              if (session?.value) {
-                const user = JSON.parse(session.value);
-                setCurrentUser(user);
-                setIsLoggedIn(true);
-              }
-            } catch (e) {}
-          };
+  const handleRegister = async () => {
+    if (!registerForm.name || !registerForm.email || !registerForm.password) {
+      alert('Please fill all required fields');
+      return;
+    }
+    try {
+      const id = `customer:${Date.now()}`;
+      const customer = {
+        id, ...registerForm,
+        registeredAt: new Date().toISOString(),
+        totalOrders: 0
+      };
+      await window.storage.set(id, JSON.stringify(customer));
+      await loadCustomers();
+      setRegisterForm({ name: '', email: '', phone: '', address: '', password: '' });
+      setShowRegister(false);
+      alert('✅ Registration successful! Please login.');
+    } catch (e) {
+      alert('Registration failed');
+    }
+  };
 
-          const loadCustomers = async () => {
-            try {
-              const keys = await window.storage.list('customer:');
-              if (keys?.keys) {
-                const loaded = [];
-                for (const key of keys.keys) {
-                  const result = await window.storage.get(key);
-                  if (result?.value) loaded.push(JSON.parse(result.value));
-                }
-                setCustomers(loaded);
-              }
-            } catch (e) {}
-          };
+  const handleLogin = async () => {
+    const customer = customers.find(c => c.email === loginForm.email && c.password === loginForm.password);
+    if (customer) {
+      await window.storage.set('farm_session', JSON.stringify(customer));
+      setCurrentUser(customer);
+      setIsLoggedIn(true);
+      setShowLogin(false);
+      setLoginForm({ email: '', password: '' });
+    } else {
+      alert('Invalid credentials');
+    }
+  };
 
-          const loadOrders = async () => {
-            try {
-              const keys = await window.storage.list('order:');
-              if (keys?.keys) {
-                const loaded = [];
-                for (const key of keys.keys) {
-                  const result = await window.storage.get(key);
-                  if (result?.value) loaded.push(JSON.parse(result.value));
-                }
-                setOrders(loaded);
-              }
-            } catch (e) {}
-          };
+  const handleLogout = async () => {
+    try {
+      await window.storage.delete('farm_session');
+      setIsLoggedIn(false);
+      setCurrentUser(null);
+      setCart([]);
+    } catch (e) {}
+  };
 
-          const handleRegister = async () => {
-            if (!registerForm.name || !registerForm.email || !registerForm.password) {
-              alert('Please fill all required fields');
-              return;
-            }
-            try {
-              const id = `customer:${Date.now()}`;
-              const customer = { id, ...registerForm, registeredAt: new Date().toISOString(), totalOrders: 0 };
-              await window.storage.set(id, JSON.stringify(customer));
-              await loadCustomers();
-              setRegisterForm({ name: '', email: '', phone: '', address: '', password: '' });
-              setShowRegister(false);
-              alert('✅ Registration successful! Please login.');
-            } catch (e) {
-              alert('Registration failed');
-            }
-          };
+  const placeOrder = async () => {
+    if (!orderForm.customerName || !orderForm.phone || !orderForm.items) {
+      alert('Please fill required fields');
+      return;
+    }
+    try {
+      const id = `order:${Date.now()}`;
+      const order = {
+        id, ...orderForm,
+        customerId: currentUser?.id || 'guest',
+        status: 'pending',
+        orderedAt: new Date().toISOString()
+      };
+      await window.storage.set(id, JSON.stringify(order));
+      await loadOrders();
+      setOrderForm({ customerName: '', phone: '', address: '', items: '', notes: '' });
+      alert('🎉 Order placed successfully!');
+    } catch (e) {
+      alert('Order failed');
+    }
+  };
 
-          const handleLogin = async () => {
-            const customer = customers.find(c => c.email === loginForm.email && c.password === loginForm.password);
-            if (customer) {
-              await window.storage.set('farm_session', JSON.stringify(customer));
-              setCurrentUser(customer);
-              setIsLoggedIn(true);
-              setShowLogin(false);
-              setLoginForm({ email: '', password: '' });
-            } else {
-              alert('Invalid credentials');
-            }
-          };
+  const products = [
+    { id: 1, name: 'Fresh Tomatoes', category: 'vegetables', price: 40, unit: 'kg', image: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400', stock: 100 },
+    { id: 2, name: 'Organic Spinach', category: 'vegetables', price: 30, unit: 'bunch', image: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400', stock: 50 },
+    { id: 3, name: 'Farm Potatoes', category: 'vegetables', price: 25, unit: 'kg', image: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400', stock: 200 },
+    { id: 4, name: 'Sweet Carrots', category: 'vegetables', price: 35, unit: 'kg', image: 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=400', stock: 80 },
+    { id: 5, name: 'Fresh Mangoes', category: 'fruits', price: 80, unit: 'kg', image: 'https://images.unsplash.com/photo-1605027990121-cbae9def9d5f?w=400', stock: 60 },
+    { id: 6, name: 'Ripe Bananas', category: 'fruits', price: 50, unit: 'dozen', image: 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=400', stock: 100 },
+    { id: 7, name: 'Sweet Papaya', category: 'fruits', price: 40, unit: 'kg', image: 'https://images.unsplash.com/photo-1617112848923-cc2234396a8d?w=400', stock: 40 },
+    { id: 8, name: 'Farm Fresh Milk', category: 'dairy', price: 60, unit: 'liter', image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400', stock: 150 },
+    { id: 9, name: 'Pure Paneer', category: 'dairy', price: 300, unit: 'kg', image: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=400', stock: 30 },
+    { id: 10, name: 'Basmati Rice', category: 'rice', price: 120, unit: 'kg', image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400', stock: 500 },
+    { id: 11, name: 'Brown Rice', category: 'rice', price: 80, unit: 'kg', image: 'https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?w=400', stock: 300 },
+    { id: 12, name: 'Fresh Butter', category: 'dairy', price: 400, unit: 'kg', image: 'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=400', stock: 20 },
+  ];
 
-          const handleLogout = async () => {
-            try {
-              await window.storage.delete('farm_session');
-              setIsLoggedIn(false);
-              setCurrentUser(null);
-              setCart([]);
-            } catch (e) {}
-          };
+  const addToCart = (product) => {
+    setCart([...cart, product]);
+  };
 
-          const placeOrder = async () => {
-            if (!orderForm.customerName || !orderForm.phone || !orderForm.items) {
-              alert('Please fill required fields');
-              return;
-            }
-            try {
-              const id = `order:${Date.now()}`;
-              const order = {
-                id, ...orderForm,
-                customerId: currentUser?.id || 'guest',
-                status: 'pending',
-                orderedAt: new Date().toISOString()
-              };
-              await window.storage.set(id, JSON.stringify(order));
-              await loadOrders();
-              setOrderForm({ customerName: '', phone: '', address: '', items: '', notes: '' });
-              alert('🎉 Order placed successfully!');
-            } catch (e) {
-              alert('Order failed');
-            }
-          };
+  const stats = [
+    { icon: Users, label: 'Happy Customers', value: customers.length || '500+', color: 'from-green-500 to-emerald-500' },
+    { icon: Package, label: 'Products', value: '50+', color: 'from-blue-500 to-cyan-500' },
+    { icon: TrendingUp, label: 'Orders/Month', value: orders.length || '1000+', color: 'from-purple-500 to-pink-500' },
+    { icon: Award, label: 'Quality Rating', value: '5.0★', color: 'from-orange-500 to-yellow-500' }
+  ];
 
-          const products = [
-            { id: 1, name: 'Fresh Tomatoes', category: 'vegetables', price: 40, unit: 'kg', image: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400', stock: 100, badge: 'Popular' },
-            { id: 2, name: 'Organic Spinach', category: 'vegetables', price: 30, unit: 'bunch', image: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400', stock: 50, badge: 'Organic' },
-            { id: 3, name: 'Farm Potatoes', category: 'vegetables', price: 25, unit: 'kg', image: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400', stock: 200, badge: 'Fresh' },
-            { id: 4, name: 'Sweet Carrots', category: 'vegetables', price: 35, unit: 'kg', image: 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=400', stock: 80, badge: 'Sweet' },
-            { id: 5, name: 'Fresh Mangoes', category: 'fruits', price: 80, unit: 'kg', image: 'https://images.unsplash.com/photo-1605027990121-cbae9def9d5f?w=400', stock: 60, badge: 'Seasonal' },
-            { id: 6, name: 'Ripe Bananas', category: 'fruits', price: 50, unit: 'dozen', image: 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=400', stock: 100, badge: 'Popular' },
-            { id: 7, name: 'Sweet Papaya', category: 'fruits', price: 40, unit: 'kg', image: 'https://images.unsplash.com/photo-1617112848923-cc2234396a8d?w=400', stock: 40, badge: 'Fresh' },
-            { id: 8, name: 'Farm Fresh Milk', category: 'dairy', price: 60, unit: 'liter', image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400', stock: 150, badge: 'Daily' },
-            { id: 9, name: 'Pure Paneer', category: 'dairy', price: 300, unit: 'kg', image: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=400', stock: 30, badge: 'Premium' },
-            { id: 10, name: 'Basmati Rice', category: 'rice', price: 120, unit: 'kg', image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400', stock: 500, badge: 'Premium' },
-            { id: 11, name: 'Brown Rice', category: 'rice', price: 80, unit: 'kg', image: 'https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?w=400', stock: 300, badge: 'Healthy' },
-            { id: 12, name: 'Fresh Butter', category: 'dairy', price: 400, unit: 'kg', image: 'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=400', stock: 20, badge: 'Homemade' },
-          ];
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-green-300/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-emerald-300/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
+        <div 
+          className="absolute w-64 h-64 bg-teal-300/20 rounded-full blur-3xl transition-all duration-300"
+          style={{
+            left: `${mousePos.x / 30}px`,
+            top: `${mousePos.y / 30}px`
+          }}
+        ></div>
+      </div>
 
-          const addToCart = (product) => {
-            setCart([...cart, product]);
-            alert(`✅ ${product.name} added to cart!`);
-          };
-
-          const stats = [
-            { icon: 'users', label: 'Happy Customers', value: customers.length || '500+', color: 'from-green-500 via-emerald-500 to-teal-500', gradient: 'linear-gradient(135deg, #22c55e 0%, #10b981 50%, #14b8a6 100%)' },
-            { icon: 'package', label: 'Products', value: '50+', color: 'from-blue-500 via-cyan-500 to-sky-500', gradient: 'linear-gradient(135deg, #3b82f6 0%, #06b6d4 50%, #0ea5e9 100%)' },
-            { icon: 'trending-up', label: 'Orders/Month', value: orders.length || '1K+', color: 'from-purple-500 via-pink-500 to-rose-500', gradient: 'linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #f43f5e 100%)' },
-            { icon: 'award', label: 'Quality Rating', value: '5.0★', color: 'from-orange-500 via-amber-500 to-yellow-500', gradient: 'linear-gradient(135deg, #f97316 0%, #f59e0b 50%, #eab308 100%)' }
-          ];
-
-          return (
-            <div className="min-h-screen relative">
-              {/* Navigation */}
-              <nav className="sticky top-0 z-50 glass border-b border-white/20 shadow-2xl">
-                <div className="max-w-7xl mx-auto px-4 py-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4 slide-up">
-                      <div className="relative float-animation">
-                        <div className="absolute inset-0 bg-gradient-to-r from-green-400 via-emerald-400 to-teal-400 rounded-3xl blur-2xl opacity-60 scale-pulse"></div>
-                        <div className="relative bg-gradient-to-br from-green-600 via-emerald-600 to-teal-600 p-4 rounded-3xl shadow-2xl glow-green">
-                          <i data-lucide="leaf" className="w-10 h-10 text-white"></i>
-                        </div>
-                      </div>
-                      <div>
-                        <h1 className="text-3xl font-black bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 bg-clip-text text-transparent text-shadow">
-                          Green Valley Farms
-                        </h1>
-                        <p className="text-xs font-bold text-gray-700 flex items-center gap-1">
-                          <i data-lucide="sparkles" className="w-3 h-3 text-green-500"></i>
-                          100% Organic • Farm Fresh • Premium Quality
-                        </p>
-                      </div>
+      <div className="relative z-10">
+        {/* Navigation */}
+        <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-2xl shadow-lg border-b border-green-100">
+          <div className="max-w-7xl mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl blur-lg opacity-50 animate-pulse"></div>
+                  <div className="relative bg-gradient-to-r from-green-600 to-emerald-600 p-3 rounded-2xl shadow-xl">
+                    <Leaf className="w-8 h-8 text-white" />
+                  </div>
+                </div>
+                <div>
+                  <h1 className="text-2xl font-black bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                    Green Valley Farms
+                  </h1>
+                  <p className="text-xs text-gray-600 font-semibold">🌾 Farm Fresh • Organic • Pure</p>
+                </div>
+              </div>
+              
+              <div className="hidden md:flex items-center gap-8">
+                <button onClick={() => setActiveSection('home')} className="text-gray-700 hover:text-green-600 font-semibold transition hover:scale-110">Home</button>
+                <button onClick={() => setActiveSection('products')} className="text-gray-700 hover:text-green-600 font-semibold transition hover:scale-110">Products</button>
+                <button onClick={() => setActiveSection('order')} className="text-gray-700 hover:text-green-600 font-semibold transition hover:scale-110">Order</button>
+                <button onClick={() => setActiveSection('customers')} className="text-gray-700 hover:text-green-600 font-semibold transition hover:scale-110">Customers</button>
+                
+                {isLoggedIn ? (
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 bg-green-50 px-4 py-2 rounded-full">
+                      <User className="w-4 h-4 text-green-600" />
+                      <span className="text-sm font-semibold text-green-700">{currentUser?.name}</span>
                     </div>
-                    
-                    <div className="hidden md:flex items-center gap-6">
-                      {['home', 'products', 'order', 'customers'].map(section => (
-                        <button 
-                          key={section}
-                          onClick={() => setActiveSection(section)} 
-                          className={`relative text-gray-700 hover:text-green-600 font-bold transition-all hover:scale-110 ${activeSection === section ? 'text-green-600' : ''}`}
-                        >
-                          {section.charAt(0).toUpperCase() + section.slice(1)}
-                          {activeSection === section && (
-                            <span className="absolute -bottom-1 left-0 right-0 h-1 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full"></span>
-                          )}
-                        </button>
-                      ))}
-                      
-                      {isLoggedIn ? (
-                        <div className="flex items-center gap-3">
-                          <div className="glass px-4 py-2 rounded-full flex items-center gap-2 shadow-lg">
-                            <i data-lucide="user" className="w-4 h-4 text-green-600"></i>
-                            <span className="text-sm font-bold text-gray-700">{currentUser?.name}</span>
-                          </div>
-                          <button onClick={handleLogout} className="bg-gradient-to-r from-red-500 to-rose-500 text-white px-5 py-2 rounded-full font-bold shadow-lg hover:shadow-2xl transition-all hover:scale-105">
-                            Logout
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="flex gap-3">
-                          <button onClick={() => setShowLogin(true)} className="glass-dark text-white px-6 py-2 rounded-full font-bold shadow-lg hover:shadow-2xl transition-all hover:scale-105">
-                            Login
-                          </button>
-                          <button onClick={() => setShowRegister(true)} className="bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 text-white px-6 py-2 rounded-full font-bold shadow-xl hover:shadow-2xl transition-all hover:scale-105 glow-pulse">
-                            Register
-                          </button>
-                        </div>
-                      )}
-                      
-                      <button className="relative bg-gradient-to-br from-green-600 to-emerald-600 p-4 rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:scale-110 glow-green">
-                        <i data-lucide="shopping-cart" className="w-6 h-6 text-white"></i>
-                        {cart.length > 0 && (
-                          <span className="absolute -top-2 -right-2 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-black w-7 h-7 rounded-full flex items-center justify-center shadow-lg scale-pulse">
-                            {cart.length}
-                          </span>
-                        )}
-                      </button>
-                    </div>
+                    <button onClick={handleLogout} className="bg-red-500 text-white px-4 py-2 rounded-full font-bold hover:bg-red-600 transition">Logout</button>
+                  </div>
+                ) : (
+                  <div className="flex gap-3">
+                    <button onClick={() => setShowLogin(true)} className="bg-white border-2 border-green-600 text-green-600 px-6 py-2 rounded-full font-bold hover:bg-green-50 transition">Login</button>
+                    <button onClick={() => setShowRegister(true)} className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-2 rounded-full font-bold hover:shadow-xl transition hover:scale-105">Register</button>
+                  </div>
+                )}
+                
+                <button className="relative bg-green-600 p-3 rounded-full hover:bg-green-700 transition hover:scale-110">
+                  <ShoppingCart className="w-5 h-5 text-white" />
+                  {cart.length > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center animate-bounce">
+                      {cart.length}
+                    </span>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </nav>
 
-                    <button onClick={() => setShowMobileMenu(!showMobileMenu)} className="md:hidden glass p-3 rounded-2xl">
-                      <i data-lucide={showMobileMenu ? 'x' : 'menu'} className="w-6 h-6"></i>
+        {/* Home Section */}
+        {activeSection === 'home' && (
+          <section className="py-20 px-4">
+            <div className="max-w-7xl mx-auto">
+              {/* Hero Section */}
+              <div className="grid md:grid-cols-2 gap-12 items-center mb-20">
+                <div>
+                  <div className="inline-flex items-center gap-2 bg-green-100 px-4 py-2 rounded-full mb-6">
+                    <Star className="w-4 h-4 text-green-600" />
+                    <span className="text-sm font-bold text-green-700">100% Organic & Pesticide-Free</span>
+                  </div>
+                  <h1 className="text-6xl md:text-7xl font-black mb-6 leading-tight">
+                    <span className="bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                      Farm Fresh
+                    </span>
+                    <br/>
+                    <span className="text-gray-800">To Your Table</span>
+                  </h1>
+                  <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+                    Experience the pure taste of nature with our handpicked, organic produce. Delivered fresh from our farm to your doorstep daily.
+                  </p>
+                  <div className="flex flex-wrap gap-4">
+                    <button onClick={() => setActiveSection('products')} className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:shadow-2xl transition-all hover:scale-105 flex items-center gap-2">
+                      <Package className="w-6 h-6" />
+                      Shop Now
+                    </button>
+                    <button onClick={() => setActiveSection('order')} className="bg-white border-2 border-green-600 text-green-600 px-8 py-4 rounded-2xl font-bold text-lg hover:bg-green-50 transition-all hover:scale-105">
+                      Place Order
                     </button>
                   </div>
                 </div>
-              </nav>
-
-              {/* Home Section */}
-              {activeSection === 'home' && (
-                <section className="py-20 px-4">
-                  <div className="max-w-7xl mx-auto">
-                    <div className="grid md:grid-cols-2 gap-16 items-center mb-24">
-                      <div className="slide-up">
-                        <div className="inline-flex items-center gap-3 glass px-6 py-3 rounded-full mb-8 shadow-xl scale-pulse">
-                          <i data-lucide="star" className="w-5 h-5 text-yellow-500"></i>
-                          <span className="font-black bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                            100% ORGANIC & PESTICIDE-FREE
-                          </span>
-                        </div>
-                        
-                        <h1 className="text-7xl md:text-8xl font-black mb-8 leading-none">
-                          <span className="bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 bg-clip-text text-transparent float-animation block mb-4 text-shadow" style={{WebkitTextStroke: '2px transparent'}}>
-                            Farm Fresh
-                          </span>
-                          <span className="text-gray-800 text-shadow">To Your Table</span>
-                        </h1>
-                        
-                        <p className="text-2xl text-gray-700 mb-10 leading-relaxed font-medium">
-                          Experience the pure taste of nature with our handpicked, <span className="font-black text-green-600">organic produce</span>. Delivered fresh daily! 🌾
-                        </p>
-                        
-                        <div className="flex flex-wrap gap-4">
-                          <button onClick={() => setActiveSection('products')} className="bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 text-white px-10 py-5 rounded-2xl font-black text-xl shadow-2xl hover:shadow-green-500/50 transition-all hover:scale-110 flex items-center gap-3 glow-pulse">
-                            <i data-lucide="shopping-cart" className="w-7 h-7"></i>
-                            Shop Now
-                            <i data-lucide="sparkles" className="w-5 h-5"></i>
-                          </button>
-                          <button onClick={() => setActiveSection('order')} className="glass px-10 py-5 rounded-2xl font-black text-xl shadow-xl hover:shadow-2xl transition-all hover:scale-105 text-gray-700">
-                            Place Order
-                          </button>
-                        </div>
+                
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-emerald-400 rounded-3xl blur-3xl opacity-30 animate-pulse"></div>
+                  <div className="relative bg-white rounded-3xl shadow-2xl p-8 border border-green-100">
+                    <img 
+                      src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800" 
+                      alt="Farm"
+                      className="w-full h-80 object-cover rounded-2xl shadow-xl mb-6"
+                    />
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-4 rounded-xl text-center border border-green-100">
+                        <div className="text-3xl font-black text-green-600">100%</div>
+                        <div className="text-xs font-semibold text-gray-600">Organic</div>
                       </div>
-                      
-                      <div className="relative">
-                        <div className="absolute inset-0 bg-gradient-to-r from-green-400 via-emerald-400 to-teal-400 rounded-[3rem] blur-3xl opacity-40 animate-pulse"></div>
-                        <div className="relative glass rounded-[3rem] p-8 shadow-2xl card-3d">
-                          <div className="relative overflow-hidden rounded-3xl shadow-2xl image-glow mb-8">
-                            <img 
-                              src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800" 
-                              alt="Farm"
-                              className="w-full h-96 object-cover transition-transform duration-700 hover:scale-110"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
-                            <div className="absolute bottom-6 left-6 right-6">
-                              <h3 className="text-white text-3xl font-black mb-2 text-shadow">Our Premium Farm</h3>
-                              <p className="text-white/90 font-semibold">Cultivating excellence since 2000</p>
-                            </div>
-                          </div>
-                          
-                          <div className="grid grid-cols-3 gap-4">
-                            {[
-                              { value: '100%', label: 'Organic', color: 'from-green-500 to-emerald-500' },
-                              { value: '24/7', label: 'Delivery', color: 'from-blue-500 to-cyan-500' },
-                              { value: `${customers.length || '500'}+`, label: 'Customers', color: 'from-purple-500 to-pink-500' }
-                            ].map((item, i) => (
-                              <div key={i} className="glass rounded-2xl p-5 text-center shadow-lg hover:shadow-2xl transition-all hover:scale-110 card-3d">
-                                <div className={`text-4xl font-black mb-2 bg-gradient-to-r ${item.color} bg-clip-text text-transparent`}>
-                                  {item.value}
-                                </div>
-                                <div className="text-xs font-bold text-gray-600">{item.label}</div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
+                      <div className="bg-gradient-to-br from-blue-50 to-cyan-50 p-4 rounded-xl text-center border border-blue-100">
+                        <div className="text-3xl font-black text-blue-600">24/7</div>
+                        <div className="text-xs font-semibold text-gray-600">Delivery</div>
+                      </div>
+                      <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-4 rounded-xl text-center border border-purple-100">
+                        <div className="text-3xl font-black text-purple-600">500+</div>
+                        <div className="text-xs font-semibold text-gray-600">Customers</div>
                       </div>
                     </div>
-
-                    {/* Stats Section with Enhanced Graphics */}
-                    <div className="grid md:grid-cols-4 gap-6 mb-24">
-                      {stats.map((stat, i) => (
-                        <div key={i} className="group relative overflow-hidden glass rounded-3xl p-8 shadow-2xl hover:shadow-3xl transition-all hover:scale-110 hover:-translate-y-3 card-3d" style={{animationDelay: `${i * 0.1}s`}}>
-                          <div className="absolute inset-0 opacity-10" style={{background: stat.gradient}}></div>
-                          <div className="relative">
-                            <div className={`w-20 h-20 bg-gradient-to-br ${stat.color} rounded-3xl flex items-center justify-center mb-6 shadow-2xl group-hover:scale-110 transition-transform glow-green`}>
-                              <i data-lucide={stat.icon} className="w-10 h-10 text-white"></i>
-                            </div>
-                            <div className={`text-5xl font-black mb-3 bg-gradient-to-r ${stat.color} bg-clip-text text-transparent`}>
-                              {stat.value}
-                            </div>
-                            <div className="text-gray-700 font-bold text-lg">{stat.label}</div>
-                          </div>
-                          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br opacity-10 rounded-full blur-2xl" style={{background: stat.gradient}}></div>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Features with Premium Cards */}
-                    <div className="grid md:grid-cols-3 gap-8">
-                      {[
-                        { icon: 'truck', title: 'Free Delivery', desc: 'Free home delivery on orders above ₹500', color: 'from-green-500 to-emerald-600' },
-                        { icon: 'shield', title: '100% Organic', desc: 'No pesticides, no chemicals. Pure & natural', color: 'from-blue-500 to-cyan-600' },
-                        { icon: 'heart', title: 'Farm Fresh', desc: 'Harvested daily for maximum freshness', color: 'from-purple-500 to-pink-600' }
-                      ].map((feature, i) => (
-                        <div key={i} className={`relative overflow-hidden bg-gradient-to-br ${feature.color} rounded-3xl p-10 text-white shadow-2xl hover:shadow-3xl transition-all hover:scale-105 card-3d`}>
-                          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-32 translate-x-32"></div>
-                          <div className="relative">
-                            <i data-lucide={feature.icon} className="w-16 h-16 mb-6 shimmer"></i>
-                            <h3 className="text-3xl font-black mb-4 text-shadow">{feature.title}</h3>
-                            <p className="text-white/90 text-lg font-medium">{feature.desc}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </section>
-              )}
-
-              {/* Products Section with Premium Design */}
-              {activeSection === 'products' && (
-                <section className="py-20 px-4">
-                  <div className="max-w-7xl mx-auto">
-                    <div className="text-center mb-16 slide-up">
-                      <h2 className="text-6xl md:text-7xl font-black mb-6 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 bg-clip-text text-transparent text-shadow">
-                        Premium Products
-                      </h2>
-                      <p className="text-2xl text-gray-700 font-semibold">Fresh, organic, and delivered with love 💚</p>
-                    </div>
-
-                    <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-8">
-                      {products.map((product, i) => (
-                        <div key={product.id} className="group glass rounded-3xl shadow-2xl overflow-hidden hover:shadow-3xl transition-all hover:scale-105 card-3d" style={{animationDelay: `${i * 0.05}s`}}>
-                          <div className="relative overflow-hidden">
-                            <img 
-                              src={product.image} 
-                              alt={product.name}
-                              className="w-full h-56 object-cover group-hover:scale-125 transition-transform duration-700"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                            <div className="absolute top-4 right-4 glass-dark text-white px-4 py-2 rounded-full text-sm font-black shadow-xl">
-                              Stock: {product.stock}
-                            </div>
-                            <div className="absolute top-4 left-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-full text-xs font-black shadow-xl scale-pulse">
-                              {product.badge}
-                            </div>
-                          </div>
-                          <div className="p-6">
-                            <h3 className="text-2xl font-black text-gray-800 mb-3">{product.name}</h3>
-                            <div className="flex items-center justify-between mb-5">
-                              <span className="text-4xl font-black bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                                ₹{product.price}
-                              </span>
-                              <span className="text-sm text-gray-500 font-bold">/{product.unit}</span>
-                            </div>
-                            <button
-                              onClick={() => addToCart(product)}
-                              className="w-full bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 text-white py-4 rounded-2xl font-black text-lg shadow-xl hover:shadow-2xl transition-all hover:scale-105 glow-green"
-                            >
-                              Add to Cart
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </section>
-              )}
-
-              {/* Modals with Enhanced Graphics */}
-              {showLogin && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-xl z-50 flex items-center justify-center p-4">
-                  <div className="glass rounded-3xl shadow-2xl max-w-md w-full p-10 slide-up">
-                    <div className="flex items-center justify-between mb-8">
-                      <h3 className="text-3xl font-black bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">Login</h3>
-                      <button onClick={() => setShowLogin(false)} className="glass-dark p-2 rounded-xl hover:scale-110 transition">
-                        <i data-lucide="x" className="w-6 h-6 text-white"></i>
-                      </button>
-                    </div>
-                    <div className="space-y-5">
-                      <input type="email" value={loginForm.email} onChange={(e) => setLoginForm({...loginForm, email: e.target.value})} placeholder="Email" className="w-full px-6 py-4 glass border-2 border-white/20 rounded-2xl focus:border-green-500 focus:outline-none font-semibold text-lg"/>
-                      <input type="password" value={loginForm.password} onChange={(e) => setLoginForm({...loginForm, password: e.target.value})} placeholder="Password" className="w-full px-6 py-4 glass border-2 border-white/20 rounded-2xl focus:border-green-500 focus:outline-none font-semibold text-lg"/>
-                      <button onClick={handleLogin} className="w-full bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 text-white py-5 rounded-2xl font-black text-xl shadow-2xl hover:shadow-green-500/50 transition-all hover:scale-105 glow-pulse">
-                        Login
-                      </button>
-                    </div>
                   </div>
                 </div>
-              )}
+              </div>
 
-              {showRegister && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-xl z-50 flex items-center justify-center p-4">
-                  <div className="glass rounded-3xl shadow-2xl max-w-md w-full p-10 max-h-[90vh] overflow-y-auto slide-up">
-                    <div className="flex items-center justify-between mb-8">
-                      <h3 className="text-3xl font-black bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">Register</h3>
-                      <button onClick={() => setShowRegister(false)} className="glass-dark p-2 rounded-xl hover:scale-110 transition">
-                        <i data-lucide="x" className="w-6 h-6 text-white"></i>
-                      </button>
+              {/* Stats Section */}
+              <div className="grid md:grid-cols-4 gap-6 mb-20">
+                {stats.map((stat, i) => (
+                  <div key={i} className="group bg-white rounded-3xl p-8 shadow-xl border border-gray-100 hover:shadow-2xl transition-all hover:scale-105 hover:-translate-y-2">
+                    <div className={`w-16 h-16 bg-gradient-to-r ${stat.color} rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-lg`}>
+                      <stat.icon className="w-8 h-8 text-white" />
                     </div>
-                    <div className="space-y-5">
-                      <input type="text" value={registerForm.name} onChange={(e) => setRegisterForm({...registerForm, name: e.target.value})} placeholder="Full Name *" className="w-full px-6 py-4 glass border-2 border-white/20 rounded-2xl focus:border-green-500 focus:outline-none font-semibold text-lg"/>
-                      <input type="email" value={registerForm.email} onChange={(e) => setRegisterForm({...registerForm, email: e.target.value})} placeholder="Email *" className="w-full px-6 py-4 glass border-2 border-white/20 rounded-2xl focus:border-green-500 focus:outline-none font-semibold text-lg"/>
-                      <input type="tel" value={registerForm.phone} onChange={(e) => setRegisterForm({...registerForm, phone: e.target.value})} placeholder="Phone Number" className="w-full px-6 py-4 glass border-2 border-white/20 rounded-2xl focus:border-green-500 focus:outline-none font-semibold text-lg"/>
-                      <input type="text" value={registerForm.address} onChange={(e) => setRegisterForm({...registerForm, address: e.target.value})} placeholder="Address" className="w-full px-6 py-4 glass border-2 border-white/20 rounded-2xl focus:border-green-500 focus:outline-none font-semibold text-lg"/>
-                      <input type="password" value={registerForm.password} onChange={(e) => setRegisterForm({...registerForm, password: e.target.value})} placeholder="Password *" className="w-full px-6 py-4 glass border-2 border-white/20 rounded-2xl focus:border-green-500 focus:outline-none font-semibold text-lg"/>
-                      <button onClick={handleRegister} className="w-full bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 text-white py-5 rounded-2xl font-black text-xl shadow-2xl hover:shadow-green-500/50 transition-all hover:scale-105 glow-pulse">
-                        Register Now
-                      </button>
+                    <div className={`text-4xl font-black mb-2 bg-gradient-to-r ${stat.color} bg-clip-text text-transparent`}>
+                      {stat.value}
                     </div>
+                    <div className="text-gray-600 font-semibold">{stat.label}</div>
                   </div>
-                </div>
-              )}
+                ))}
+              </div>
 
-              {/* Premium Footer */}
-              <footer className="relative overflow-hidden bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900 text-white py-16 px-4">
-                <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDEwIEwgNjAgMTAgTSAxMCAwIEwgMTAgNjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjA1KSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-20"></div>
-                <div className="max-w-7xl mx-auto text-center relative">
-                  <div className="flex items-center justify-center gap-4 mb-8">
-                    <div className="bg-gradient-to-br from-green-400 to-emerald-400 p-4 rounded-3xl shadow-2xl glow-green">
-                      <i data-lucide="leaf" className="w-12 h-12 text-white"></i>
-                    </div>
-                    <span className="text-5xl font-black text-shadow">Green Valley Farms</span>
-                  </div>
-                  <p className="text-green-100 mb-8 text-xl font-semibold">Fresh • Organic • Delivered Daily 🌾</p>
-                  <div className="flex flex-wrap items-center justify-center gap-8 mb-8">
-                    <div className="glass-dark px-6 py-3 rounded-full flex items-center gap-3 shadow-xl">
-                      <i data-lucide="phone" className="w-5 h-5 text-green-400"></i>
-                      <span className="font-bold">+91 98765 43210</span>
-                    </div>
-                    <div className="glass-dark px-6 py-3 rounded-full flex items-center gap-3 shadow-xl">
-                      <i data-lucide="mail" className="w-5 h-5 text-green-400"></i>
-                      <span className="font-bold">info@greenvalleyfarms.com</span>
-                    </div>
-                  </div>
-                  <p className="text-green-300 font-semibold">© 2026 Green Valley Farms. All rights reserved.</p>
+              {/* Features Section */}
+              <div className="grid md:grid-cols-3 gap-8">
+                <div className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-3xl p-8 text-white shadow-2xl hover:scale-105 transition-all">
+                  <Truck className="w-12 h-12 mb-4" />
+                  <h3 className="text-2xl font-bold mb-3">Free Delivery</h3>
+                  <p className="text-green-50">Free home delivery on orders above ₹500. Fresh products at your doorstep.</p>
                 </div>
-              </footer>
+                <div className="bg-gradient-to-br from-blue-500 to-cyan-600 rounded-3xl p-8 text-white shadow-2xl hover:scale-105 transition-all">
+                  <Shield className="w-12 h-12 mb-4" />
+                  <h3 className="text-2xl font-bold mb-3">100% Organic</h3>
+                  <p className="text-blue-50">No pesticides, no chemicals. Pure, natural, and healthy products.</p>
+                </div>
+                <div className="bg-gradient-to-br from-purple-500 to-pink-600 rounded-3xl p-8 text-white shadow-2xl hover:scale-105 transition-all">
+                  <Heart className="w-12 h-12 mb-4" />
+                  <h3 className="text-2xl font-bold mb-3">Farm Fresh</h3>
+                  <p className="text-purple-50">Harvested daily for maximum freshness and nutrition.</p>
+                </div>
+              </div>
             </div>
-          );
-        };
+          </section>
+        )}
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<GreenValleyFarms />);
-        setTimeout(() => { if (window.lucide) lucide.createIcons(); }, 100);
-    </script>
-</body>
-</html>
+        {/* Products Section */}
+        {activeSection === 'products' && (
+          <section className="py-20 px-4">
+            <div className="max-w-7xl mx-auto">
+              <div className="text-center mb-12">
+                <h2 className="text-5xl font-black mb-4 bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                  Our Products
+                </h2>
+                <p className="text-xl text-gray-600">Fresh, organic, and delivered daily</p>
+              </div>
+
+              <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {products.map((product) => (
+                  <div key={product.id} className="group bg-white rounded-3xl shadow-xl overflow-hidden hover:shadow-2xl transition-all hover:scale-105 border border-gray-100">
+                    <div className="relative overflow-hidden">
+                      <img 
+                        src={product.image} 
+                        alt={product.name}
+                        className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                      <div className="absolute top-3 right-3 bg-green-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+                        In Stock: {product.stock}
+                      </div>
+                    </div>
+                    <div className="p-6">
+                      <h3 className="text-xl font-bold text-gray-800 mb-2">{product.name}</h3>
+                      <div className="flex items-center justify-between mb-4">
+                        <span className="text-2xl font-black text-green-600">₹{product.price}</span>
+                        <span className="text-sm text-gray-500">per {product.unit}</span>
+                      </div>
+                      <button
+                        onClick={() => addToCart(product)}
+                        className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 rounded-xl font-bold hover:shadow-lg transition-all hover:scale-105"
+                      >
+                        Add to Cart
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Order Section */}
+        {activeSection === 'order' && (
+          <section className="py-20 px-4">
+            <div className="max-w-4xl mx-auto">
+              <div className="text-center mb-12">
+                <h2 className="text-5xl font-black mb-4 bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                  Place Your Order
+                </h2>
+                <p className="text-xl text-gray-600">Fresh products delivered to your doorstep</p>
+              </div>
+
+              <div className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">Your Name *</label>
+                    <input
+                      type="text"
+                      value={orderForm.customerName}
+                      onChange={(e) => setOrderForm({...orderForm, customerName: e.target.value})}
+                      placeholder="John Doe"
+                      className="w-full px-6 py-4 border-2 border-gray-200 rounded-2xl focus:border-green-500 focus:outline-none text-gray-800 font-semibold"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">Phone Number *</label>
+                    <input
+                      type="tel"
+                      value={orderForm.phone}
+                      onChange={(e) => setOrderForm({...orderForm, phone: e.target.value})}
+                      placeholder="+91 98765 43210"
+                      className="w-full px-6 py-4 border-2 border-gray-200 rounded-2xl focus:border-green-500 focus:outline-none text-gray-800 font-semibold"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">Delivery Address *</label>
+                    <input
+                      type="text"
+                      value={orderForm.address}
+                      onChange={(e) => setOrderForm({...orderForm, address: e.target.value})}
+                      placeholder="123 Main Street, City"
+                      className="w-full px-6 py-4 border-2 border-gray-200 rounded-2xl focus:border-green-500 focus:outline-none text-gray-800 font-semibold"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">Items to Order *</label>
+                    <textarea
+                      value={orderForm.items}
+                      onChange={(e) => setOrderForm({...orderForm, items: e.target.value})}
+                      rows="4"
+                      placeholder="e.g., 2kg Tomatoes, 1L Milk, 1kg Rice..."
+                      className="w-full px-6 py-4 border-2 border-gray-200 rounded-2xl focus:border-green-500 focus:outline-none text-gray-800 font-semibold"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">Special Notes</label>
+                    <textarea
+                      value={orderForm.notes}
+                      onChange={(e) => setOrderForm({...orderForm, notes: e.target.value})}
+                      rows="3"
+                      placeholder="Any special instructions..."
+                      className="w-full px-6 py-4 border-2 border-gray-200 rounded-2xl focus:border-green-500 focus:outline-none text-gray-800 font-semibold"
+                    />
+                  </div>
+                  <button
+                    onClick={placeOrder}
+                    className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-5 rounded-2xl font-black text-lg hover:shadow-2xl transition-all hover:scale-105 flex items-center justify-center gap-3"
+                  >
+                    <CheckCircle className="w-6 h-6" />
+                    Place Order
+                  </button>
+                </div>
+              </div>
+
+              {/* Recent Orders */}
+              {orders.length > 0 && (
+                <div className="mt-12">
+                  <h3 className="text-2xl font-black text-gray-800 mb-6">Recent Orders ({orders.length})</h3>
+                  <div className="space-y-4">
+                    {orders.slice(-5).reverse().map((order, i) => (
+                      <div key={i} className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-3">
+                            <div className="bg-green-100 p-3 rounded-xl">
+                              <Package className="w-5 h-5 text-green-600" />
+                            </div>
+                            <div>
+                              <div className="font-bold text-gray-800">{order.customerName}</div>
+                              <div className="text-sm text-gray-500">{order.phone}</div>
+                            </div>
+                          </div>
+                          <span className="bg-yellow-100 text-yellow-700 px-4 py-2 rounded-full text-sm font-bold">
+                            {order.status}
+                          </span>
+                        </div>
+                        <div className="text-sm text-gray-600"><strong>Items:</strong> {order.items}</div>
+                        <div className="text-xs text-gray-500 mt-2">
+                          <Clock className="w-3 h-3 inline mr-1" />
+                          {new Date(order.orderedAt).toLocaleString()}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
+
+        {/* Customers Database Section */}
+        {activeSection === 'customers' && (
+          <section className="py-20 px-4">
+            <div className="max-w-7xl mx-auto">
+              <div className="text-center mb-12">
+                <h2 className="text-5xl font-black mb-4 bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                  Customer Database
+                </h2>
+                <p className="text-xl text-gray-600">Total Registered: {customers.length}</p>
+              </div>
+
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {customers.map((customer, i) => (
+                  <div key={i} className="bg-white rounded-3xl p-6 shadow-xl border border-gray-100 hover:shadow-2xl transition-all hover:scale-105">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="bg-gradient-to-r from-green-500 to-emerald-500 p-4 rounded-2xl">
+                        <User className="w-8 h-8 text-white" />
+                      </div>
+                      <div>
+                        <div className="font-bold text-gray-800 text-lg">{customer.name}</div>
+                        <div className="text-sm text-gray-500">{customer.email}</div>
+                      </div>
+                    </div>
+                    <div className="space-y-2 text-sm text-gray-600">
+                      <div className="flex items-center gap-2">
+                        <Phone className="w-4 h-4 text-green-600" />
+                        {customer.phone}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <MapPin className="w-4 h-4 text-green-600" />
+                        {customer.address || 'No address'}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-green-600" />
+                        Joined: {new Date(customer.registeredAt).toLocaleDateString()}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {customers.length === 0 && (
+                <div className="text-center py-20 bg-white rounded-3xl shadow-xl">
+                  <Users className="w-20 h-20 text-gray-400 mx-auto mb-6" />
+                  <h3 className="text-2xl font-bold text-gray-800 mb-3">No Customers Yet</h3>
+                  <p className="text-gray-600 mb-6">Customers will appear here after registration</p>
+                  <button onClick={() => setShowRegister(true)} className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-4 rounded-2xl font-bold">
+                    Register First Customer
+                  </button>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
+
+        {/* Login Modal */}
+        {showLogin && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-black text-gray-800">Login</h3>
+                <button onClick={() => setShowLogin(false)} className="text-gray-500 hover:text-gray-700">
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              <div className="space-y-4">
+                <input
+                  type="email"
+                  value={loginForm.email}
+                  onChange={(e) => setLoginForm({...loginForm, email: e.target.value})}
+                  placeholder="Email"
+                  className="w-full px-6 py-4 border-2 border-gray-200 rounded-2xl focus:border-green-500 focus:outline-none"
+                />
+                <input
+                  type="password"
+                  value={loginForm.password}
+                  onChange={(e) => setLoginForm({...loginForm, password: e.target.value})}
+                  placeholder="Password"
+                  className="w-full px-6 py-4 border-2 border-gray-200 rounded-2xl focus:border-green-500 focus:outline-none"
+                />
+                <button onClick={handleLogin} className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-4 rounded-2xl font-bold hover:shadow-xl transition">
+                  Login
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Register Modal */}
+        {showRegister && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-black text-gray-800">Register</h3>
+                <button onClick={() => setShowRegister(false)} className="text-gray-500 hover:text-gray-700">
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              <div className="space-y-4">
+                <input
+                  type="text"
+                  value={registerForm.name}
+                  onChange={(e) => setRegisterForm({...registerForm, name: e.target.value})}
+                  placeholder="Full Name *"
+                  className="w-full px-6 py-4 border-2 border-gray-200 rounded-2xl focus:border-green-500 focus:outline-none"
+                />
+                <input
+                  type="email"
+                  value={registerForm.email}
+                  onChange={(e) => setRegisterForm({...registerForm, email: e.target.value})}
+                  placeholder="Email *"
+                  className="w-full px-6 py-4 border-2 border-gray-200 rounded-2xl focus:border-green-500 focus:outline-none"
+                />
+                <input
+                  type="tel"
+                  value={registerForm.phone}
+                  onChange={(e) => setRegisterForm({...registerForm, phone: e.target.value})}
+                  placeholder="Phone Number"
+                  className="w-full px-6 py-4 border-2 border-gray-200 rounded-2xl focus:border-green-500 focus:outline-none"
+                />
+                <input
+                  type="text"
+                  value={registerForm.address}
+                  onChange={(e) => setRegisterForm({...registerForm, address: e.target.value})}
+                  placeholder="Address"
+                  className="w-full px-6 py-4 border-2 border-gray-200 rounded-2xl focus:border-green-500 focus:outline-none"
+                />
+                <input
+                  type="password"
+                  value={registerForm.password}
+                  onChange={(e) => setRegisterForm({...registerForm, password: e.target.value})}
+                  placeholder="Password *"
+                  className="w-full px-6 py-4 border-2 border-gray-200 rounded-2xl focus:border-green-500 focus:outline-none"
+                />
+                <button onClick={handleRegister} className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-4 rounded-2xl font-bold hover:shadow-xl transition">
+                  Register
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Footer */}
+        <footer className="bg-gradient-to-r from-green-600 to-emerald-600 text-white py-12 px-4 mt-20">
+          <div className="max-w-7xl mx-auto text-center">
+            <div className="flex items-center justify-center gap-3 mb-6">
+              <Leaf className="w-10 h-10" />
+              <span className="text-3xl font-black">Green Valley Farms</span>
+            </div>
+            <p className="text-green-100 mb-6 text-lg">Fresh • Organic • Delivered Daily</p>
+            <div className="flex items-center justify-center gap-8 mb-6">
+              <div className="flex items-center gap-2">
+                <Phone className="w-5 h-5" />
+                <span>+91 98765 43210</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Mail className="w-5 h-5" />
+                <span>info@greenvalleyfarms.com</span>
+              </div>
+            </div>
+            <p className="text-green-200 text-sm">© 2026 Green Valley Farms. All rights reserved.</p>
+          </div>
+        </footer>
+      </div>
+    </div>
+  );
+};
+
+export default GreenValleyFarms;
