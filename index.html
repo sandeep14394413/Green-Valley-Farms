@@ -31,7 +31,7 @@ const GreenValleyFarms = () => {
 
   const checkLogin = async () => {
     try {
-      const session = await window.storage.get('farm_session');
+      const session = localStorage.getItem('farm_session');
       if (session?.value) {
         const user = JSON.parse(session.value);
         setCurrentUser(user);
