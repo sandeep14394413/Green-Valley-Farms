@@ -1,229 +1,623 @@
-import React, { useState, useEffect } from 'react';
-import { Leaf, ShoppingCart, Phone, Mail, MapPin, User, Package, TrendingUp, Award, Users, Heart, Star, CheckCircle, Clock, Truck, Shield, X } from 'lucide-react';
-
-const GreenValleyFarms = () => {
-  const [activeSection, setActiveSection] = useState('home');
-  const [showLogin, setShowLogin] = useState(false);
-  const [showRegister, setShowRegister] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
-  const [cart, setCart] = useState([]);
-  const [orders, setOrders] = useState([]);
-  const [customers, setCustomers] = useState([]);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [currency, setCurrency] = useState('USD');
-  const [language, setLanguage] = useState('EN');
-  const [showCurrencyMenu, setShowCurrencyMenu] = useState(false);
-  const [showLanguageMenu, setShowLanguageMenu] = useState(false);
-  
-  const [loginForm, setLoginForm] = useState({ email: '', password: '' });
-  const [registerForm, setRegisterForm] = useState({
-    name: '', email: '', phone: '', address: '', password: ''
-  });
-  const [orderForm, setOrderForm] = useState({
-    customerName: '', phone: '', address: '', items: '', notes: ''
-  });
-
-  const currencies = {
-    USD: { symbol: '$', rate: 0.012, flag: '🇺🇸' },
-    EUR: { symbol: '€', rate: 0.011, flag: '🇪🇺' },
-    GBP: { symbol: '£', rate: 0.0095, flag: '🇬🇧' },
-    INR: { symbol: '₹', rate: 1, flag: '🇮🇳' },
-    AUD: { symbol: 'A$', rate: 0.018, flag: '🇦🇺' },
-    CAD: { symbol: 'C$', rate: 0.017, flag: '🇨🇦' },
-    JPY: { symbol: '¥', rate: 1.8, flag: '🇯🇵' },
-  };
-
-  const languages = {
-    EN: { name: 'English', flag: '🇬🇧' },
-    ES: { name: 'Español', flag: '🇪🇸' },
-    FR: { name: 'Français', flag: '🇫🇷' },
-    DE: { name: 'Deutsch', flag: '🇩🇪' },
-    HI: { name: 'हिंदी', flag: '🇮🇳' },
-    ZH: { name: '中文', flag: '🇨🇳' },
-  };
-
-  const convertPrice = (priceINR) => {
-    const converted = priceINR * currencies[currency].rate;
-    return `${currencies[currency].symbol}${converted.toFixed(2)}`;
-  };
-
-  // LocalStorage helper functions (replacing window.storage)
-  const storageGet = (key) => {
-    try {
-      const item = localStorage.getItem(key);
-      return item ? JSON.parse(item) : null;
-    } catch (e) {
-      return null;
-    }
-  };
-
-  const storageSet = (key, value) => {
-    try {
-      localStorage.setItem(key, JSON.stringify(value));
-      return true;
-    } catch (e) {
-      return false;
-    }
-  };
-
-  const storageDelete = (key) => {
-    try {
-      localStorage.removeItem(key);
-      return true;
-    } catch (e) {
-      return false;
-    }
-  };
-
-  const storageList = (prefix) => {
-    try {
-      const keys = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.startsWith(prefix)) {
-          keys.push(key);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Green Valley Farms - Organic Produce Worldwide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-25px); }
         }
-      }
-      return keys;
-    } catch (e) {
-      return [];
-    }
-  };
-
-  useEffect(() => {
-    const handleMouse = (e) => setMousePos({ x: e.clientX, y: e.clientY });
-    window.addEventListener('mousemove', handleMouse);
-    loadCustomers();
-    loadOrders();
-    checkLogin();
-    return () => window.removeEventListener('mousemove', handleMouse);
-  }, []);
-
-  const checkLogin = () => {
-    try {
-      const session = storageGet('farm_session');
-      if (session) {
-        setCurrentUser(session);
-        setIsLoggedIn(true);
-      }
-    } catch (e) {}
-  };
-
-  const loadCustomers = () => {
-    try {
-      const keys = storageList('customer:');
-      const loaded = keys.map(key => storageGet(key)).filter(Boolean);
-      setCustomers(loaded);
-    } catch (e) {}
-  };
-
-  const loadOrders = () => {
-    try {
-      const keys = storageList('order:');
-      const loaded = keys.map(key => storageGet(key)).filter(Boolean);
-      setOrders(loaded);
-    } catch (e) {}
-  };
-
-  const handleRegister = () => {
-    if (!registerForm.name || !registerForm.email || !registerForm.password) {
-      alert('Please fill all required fields');
-      return;
-    }
-    try {
-      const id = `customer:${Date.now()}`;
-      const customer = {
-        id, ...registerForm,
-        registeredAt: new Date().toISOString(),
-        totalOrders: 0
-      };
-      storageSet(id, customer);
-      loadCustomers();
-      setRegisterForm({ name: '', email: '', phone: '', address: '', password: '' });
-      setShowRegister(false);
-      alert('✅ Registration successful! Please login.');
-    } catch (e) {
-      alert('Registration failed');
-    }
-  };
-
-  const handleLogin = () => {
-    const customer = customers.find(c => c.email === loginForm.email && c.password === loginForm.password);
-    if (customer) {
-      storageSet('farm_session', customer);
-      setCurrentUser(customer);
-      setIsLoggedIn(true);
-      setShowLogin(false);
-      setLoginForm({ email: '', password: '' });
-    } else {
-      alert('Invalid credentials');
-    }
-  };
-
-  const handleLogout = () => {
-    try {
-      storageDelete('farm_session');
-      setIsLoggedIn(false);
-      setCurrentUser(null);
-      setCart([]);
-    } catch (e) {}
-  };
-
-  const placeOrder = () => {
-    if (!orderForm.customerName || !orderForm.phone || !orderForm.items) {
-      alert('Please fill required fields');
-      return;
-    }
-    try {
-      const id = `order:${Date.now()}`;
-      const order = {
-        id, ...orderForm,
-        customerId: currentUser?.id || 'guest',
-        status: 'pending',
-        orderedAt: new Date().toISOString()
-      };
-      storageSet(id, order);
-      loadOrders();
-      setOrderForm({ customerName: '', phone: '', address: '', items: '', notes: '' });
-      alert('🎉 Order placed successfully!');
-    } catch (e) {
-      alert('Order failed');
-    }
-  };
-
-  const products = [
-    { id: 1, name: 'Fresh Tomatoes', category: 'vegetables', price: 40, unit: 'kg', image: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400', stock: 100 },
-    { id: 2, name: 'Organic Spinach', category: 'vegetables', price: 30, unit: 'bunch', image: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400', stock: 50 },
-    { id: 3, name: 'Farm Potatoes', category: 'vegetables', price: 25, unit: 'kg', image: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400', stock: 200 },
-    { id: 4, name: 'Sweet Carrots', category: 'vegetables', price: 35, unit: 'kg', image: 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=400', stock: 80 },
-    { id: 5, name: 'Fresh Mangoes', category: 'fruits', price: 80, unit: 'kg', image: 'https://images.unsplash.com/photo-1605027990121-cbae9def9d5f?w=400', stock: 60 },
-    { id: 6, name: 'Ripe Bananas', category: 'fruits', price: 50, unit: 'dozen', image: 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=400', stock: 100 },
-    { id: 7, name: 'Sweet Papaya', category: 'fruits', price: 40, unit: 'kg', image: 'https://images.unsplash.com/photo-1617112848923-cc2234396a8d?w=400', stock: 40 },
-    { id: 8, name: 'Farm Fresh Milk', category: 'dairy', price: 60, unit: 'liter', image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400', stock: 150 },
-    { id: 9, name: 'Pure Paneer', category: 'dairy', price: 300, unit: 'kg', image: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=400', stock: 30 },
-    { id: 10, name: 'Basmati Rice', category: 'rice', price: 120, unit: 'kg', image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400', stock: 500 },
-    { id: 11, name: 'Brown Rice', category: 'rice', price: 80, unit: 'kg', image: 'https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?w=400', stock: 300 },
-    { id: 12, name: 'Fresh Butter', category: 'dairy', price: 400, unit: 'kg', image: 'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=400', stock: 20 },
-  ];
-
-  const addToCart = (product) => {
-    setCart([...cart, product]);
-  };
-
-  const stats = [
-    { icon: Users, label: 'Happy Customers', value: customers.length || '500+', color: 'from-green-500 to-emerald-500' },
-    { icon: Package, label: 'Products', value: '50+', color: 'from-blue-500 to-cyan-500' },
-    { icon: TrendingUp, label: 'Orders/Month', value: orders.length || '1000+', color: 'from-purple-500 to-pink-500' },
-    { icon: Award, label: 'Quality Rating', value: '5.0★', color: 'from-orange-500 to-yellow-500' }
-  ];
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 relative overflow-hidden">
-      {/* Rest of your JSX code - keeping it exactly the same */}
-      {/* Just use the complete JSX from the original component */}
+        .animate-bounce {
+            animation: bounce 3s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .animate-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        .hover\:scale-105:hover {
+            transform: scale(1.05);
+        }
+        .hover\:scale-110:hover {
+            transform: scale(1.1);
+        }
+        .group:hover .group-hover\:scale-110 {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 relative overflow-hidden">
+    
+    <!-- Animated Background -->
+    <div class="fixed inset-0 z-0 pointer-events-none">
+        <div class="absolute top-20 left-10 w-72 h-72 bg-green-300/20 rounded-full blur-3xl animate-pulse"></div>
+        <div class="absolute bottom-20 right-10 w-96 h-96 bg-emerald-300/20 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
+        <div id="mouseBg" class="absolute w-64 h-64 bg-teal-300/20 rounded-full blur-3xl transition-all duration-300"></div>
+        <div class="absolute top-1/4 left-1/4 text-6xl opacity-10 animate-bounce" style="animation-delay: 0s; animation-duration: 3s;">🥕</div>
+        <div class="absolute top-1/3 right-1/4 text-6xl opacity-10 animate-bounce" style="animation-delay: 1s; animation-duration: 4s;">🍎</div>
+        <div class="absolute bottom-1/4 left-1/3 text-6xl opacity-10 animate-bounce" style="animation-delay: 2s; animation-duration: 5s;">🌾</div>
+        <div class="absolute top-2/3 right-1/3 text-6xl opacity-10 animate-bounce" style="animation-delay: 1.5s; animation-duration: 3.5s;">🥬</div>
     </div>
-  );
-};
 
-export default GreenValleyFarms;
+    <!-- Currency Indicator -->
+    <div id="currencyIndicator" class="fixed bottom-8 left-8 z-50 bg-white rounded-2xl shadow-2xl p-4 border-2 border-green-200 animate-pulse">
+        <div class="flex items-center gap-3">
+            <div class="text-3xl" id="currencyFlag">🇺🇸</div>
+            <div>
+                <div class="text-xs text-gray-500">Shopping in</div>
+                <div class="font-black text-green-600" id="currencyCode">USD</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="relative z-10">
+        <!-- Top Banner -->
+        <div class="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white py-3 overflow-hidden">
+            <div class="flex items-center justify-center gap-8 animate-pulse">
+                <span class="font-bold flex items-center gap-2">
+                    <span class="text-xl">🌍</span>
+                    <span id="bannerText">FREE WORLDWIDE SHIPPING ON ORDERS OVER $6.00</span>
+                </span>
+                <span class="hidden md:flex items-center gap-2">
+                    <span class="text-xl">⚡</span>
+                    EXPRESS DELIVERY AVAILABLE
+                </span>
+                <span class="hidden lg:flex items-center gap-2">
+                    <span class="text-xl">🏆</span>
+                    AWARD WINNING ORGANIC FARM
+                </span>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-2xl shadow-lg border-b border-green-100">
+            <div class="max-w-7xl mx-auto px-4 py-4">
+                <div class="flex items-center justify-between flex-wrap gap-4">
+                    <div class="flex items-center gap-4">
+                        <div class="relative">
+                            <div class="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl blur-lg opacity-50 animate-pulse"></div>
+                            <div class="relative bg-gradient-to-r from-green-600 to-emerald-600 p-3 rounded-2xl shadow-xl">
+                                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div>
+                            <h1 class="text-2xl font-black bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                                Green Valley Farms
+                            </h1>
+                            <p class="text-xs text-gray-600 font-semibold">🌾 Farm Fresh • Organic • Pure</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-4 md:gap-8">
+                        <button onclick="showSection('home')" class="text-gray-700 hover:text-green-600 font-semibold transition hover:scale-110">Home</button>
+                        <button onclick="showSection('products')" class="text-gray-700 hover:text-green-600 font-semibold transition hover:scale-110">Products</button>
+                        <button onclick="showSection('order')" class="text-gray-700 hover:text-green-600 font-semibold transition hover:scale-110">Order</button>
+                        
+                        <!-- Currency Selector -->
+                        <div class="relative">
+                            <button onclick="toggleCurrencyMenu()" class="flex items-center gap-2 bg-gradient-to-r from-blue-50 to-cyan-50 px-4 py-2 rounded-full border-2 border-blue-200 hover:border-blue-400 transition">
+                                <span class="text-xl" id="navCurrencyFlag">🇺🇸</span>
+                                <span class="font-bold text-gray-700" id="navCurrencyCode">USD</span>
+                            </button>
+                            <div id="currencyMenu" class="hidden absolute top-full mt-2 right-0 bg-white rounded-2xl shadow-2xl border border-gray-200 py-2 min-w-[150px] z-50">
+                                <button onclick="setCurrency('USD')" class="w-full px-4 py-2 hover:bg-green-50 flex items-center gap-3 transition text-left">
+                                    <span class="text-xl">🇺🇸</span>
+                                    <span class="font-semibold text-gray-700">USD</span>
+                                </button>
+                                <button onclick="setCurrency('EUR')" class="w-full px-4 py-2 hover:bg-green-50 flex items-center gap-3 transition text-left">
+                                    <span class="text-xl">🇪🇺</span>
+                                    <span class="font-semibold text-gray-700">EUR</span>
+                                </button>
+                                <button onclick="setCurrency('GBP')" class="w-full px-4 py-2 hover:bg-green-50 flex items-center gap-3 transition text-left">
+                                    <span class="text-xl">🇬🇧</span>
+                                    <span class="font-semibold text-gray-700">GBP</span>
+                                </button>
+                                <button onclick="setCurrency('INR')" class="w-full px-4 py-2 hover:bg-green-50 flex items-center gap-3 transition text-left">
+                                    <span class="text-xl">🇮🇳</span>
+                                    <span class="font-semibold text-gray-700">INR</span>
+                                </button>
+                                <button onclick="setCurrency('JPY')" class="w-full px-4 py-2 hover:bg-green-50 flex items-center gap-3 transition text-left">
+                                    <span class="text-xl">🇯🇵</span>
+                                    <span class="font-semibold text-gray-700">JPY</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <button class="relative bg-green-600 p-3 rounded-full hover:bg-green-700 transition hover:scale-110">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                            <span id="cartCount" class="hidden absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center animate-bounce">0</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content Container -->
+        <div id="mainContent"></div>
+
+        <!-- Footer -->
+        <footer class="bg-gradient-to-r from-green-600 to-emerald-600 text-white py-16 px-4 mt-20 relative overflow-hidden">
+            <div class="absolute inset-0 opacity-10">
+                <div class="absolute top-10 left-10 text-8xl">🌾</div>
+                <div class="absolute top-20 right-20 text-8xl">🥕</div>
+                <div class="absolute bottom-10 left-1/4 text-8xl">🍎</div>
+                <div class="absolute bottom-20 right-1/3 text-8xl">🌿</div>
+            </div>
+
+            <div class="max-w-7xl mx-auto relative z-10">
+                <div class="grid md:grid-cols-4 gap-12 mb-12">
+                    <div>
+                        <div class="flex items-center gap-3 mb-6">
+                            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+                            </svg>
+                            <span class="text-2xl font-black">Green Valley</span>
+                        </div>
+                        <p class="text-green-100 mb-4">Delivering farm-fresh organic produce to your doorstep since 2020.</p>
+                        <div class="flex gap-2">
+                            <div class="text-2xl bg-white/20 p-2 rounded-lg hover:bg-white/30 transition cursor-pointer">🇺🇸</div>
+                            <div class="text-2xl bg-white/20 p-2 rounded-lg hover:bg-white/30 transition cursor-pointer">🇬🇧</div>
+                            <div class="text-2xl bg-white/20 p-2 rounded-lg hover:bg-white/30 transition cursor-pointer">🇪🇺</div>
+                            <div class="text-2xl bg-white/20 p-2 rounded-lg hover:bg-white/30 transition cursor-pointer">🇦🇺</div>
+                            <div class="text-2xl bg-white/20 p-2 rounded-lg hover:bg-white/30 transition cursor-pointer">🇯🇵</div>
+                            <div class="text-2xl bg-white/20 p-2 rounded-lg hover:bg-white/30 transition cursor-pointer">🇮🇳</div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-xl font-bold mb-4">Quick Links</h3>
+                        <div class="space-y-2">
+                            <button onclick="showSection('home')" class="block hover:text-green-200 transition text-left">Home</button>
+                            <button onclick="showSection('products')" class="block hover:text-green-200 transition text-left">Products</button>
+                            <button onclick="showSection('order')" class="block hover:text-green-200 transition text-left">Order Now</button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-xl font-bold mb-4">We Accept</h3>
+                        <div class="space-y-2 text-green-100">
+                            <div class="flex items-center gap-2">
+                                <span class="text-2xl">💳</span>
+                                <span>All Major Credit Cards</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-2xl">💰</span>
+                                <span>PayPal & Stripe</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-2xl">🏦</span>
+                                <span>Bank Transfer</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-xl font-bold mb-4">Contact Us</h3>
+                        <div class="space-y-3 text-green-100">
+                            <div class="flex items-center gap-2">
+                                <span>📞</span>
+                                <span>+1-800-FARM-FRESH</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span>✉️</span>
+                                <span>hello@greenvalley.com</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span>📍</span>
+                                <span>Global Headquarters</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-green-400/30 pt-8">
+                    <div class="flex flex-wrap items-center justify-between gap-4">
+                        <p class="text-green-200 text-sm">© 2026 Green Valley Farms. All rights reserved. Shipping to 50+ countries worldwide 🌍</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // State
+        let currentSection = 'home';
+        let currentCurrency = 'USD';
+        let cartItems = 0;
+        
+        const currencies = {
+            USD: { symbol: '$', rate: 0.012, flag: '🇺🇸' },
+            EUR: { symbol: '€', rate: 0.011, flag: '🇪🇺' },
+            GBP: { symbol: '£', rate: 0.0095, flag: '🇬🇧' },
+            INR: { symbol: '₹', rate: 1, flag: '🇮🇳' },
+            JPY: { symbol: '¥', rate: 1.8, flag: '🇯🇵' }
+        };
+
+        const products = [
+            { id: 1, name: 'Fresh Tomatoes', price: 40, unit: 'kg', image: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400', stock: 100 },
+            { id: 2, name: 'Organic Spinach', price: 30, unit: 'bunch', image: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400', stock: 50 },
+            { id: 3, name: 'Farm Potatoes', price: 25, unit: 'kg', image: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400', stock: 200 },
+            { id: 4, name: 'Sweet Carrots', price: 35, unit: 'kg', image: 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=400', stock: 80 },
+            { id: 5, name: 'Fresh Mangoes', price: 80, unit: 'kg', image: 'https://images.unsplash.com/photo-1605027990121-cbae9def9d5f?w=400', stock: 60 },
+            { id: 6, name: 'Ripe Bananas', price: 50, unit: 'dozen', image: 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=400', stock: 100 },
+            { id: 7, name: 'Sweet Papaya', price: 40, unit: 'kg', image: 'https://images.unsplash.com/photo-1617112848923-cc2234396a8d?w=400', stock: 40 },
+            { id: 8, name: 'Farm Fresh Milk', price: 60, unit: 'liter', image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400', stock: 150 },
+            { id: 9, name: 'Pure Paneer', price: 300, unit: 'kg', image: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=400', stock: 30 },
+            { id: 10, name: 'Basmati Rice', price: 120, unit: 'kg', image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400', stock: 500 },
+            { id: 11, name: 'Brown Rice', price: 80, unit: 'kg', image: 'https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?w=400', stock: 300 },
+            { id: 12, name: 'Fresh Butter', price: 400, unit: 'kg', image: 'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=400', stock: 20 }
+        ];
+
+        // Convert price
+        function convertPrice(priceINR) {
+            const converted = priceINR * currencies[currentCurrency].rate;
+            return `${currencies[currentCurrency].symbol}${converted.toFixed(2)}`;
+        }
+
+        // Add to cart
+        function addToCart() {
+            cartItems++;
+            const cartCount = document.getElementById('cartCount');
+            cartCount.textContent = cartItems;
+            cartCount.classList.remove('hidden');
+        }
+
+        // Toggle currency menu
+        function toggleCurrencyMenu() {
+            const menu = document.getElementById('currencyMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Set currency
+        function setCurrency(currency) {
+            currentCurrency = currency;
+            document.getElementById('currencyFlag').textContent = currencies[currency].flag;
+            document.getElementById('currencyCode').textContent = currency;
+            document.getElementById('navCurrencyFlag').textContent = currencies[currency].flag;
+            document.getElementById('navCurrencyCode').textContent = currency;
+            document.getElementById('bannerText').textContent = `FREE WORLDWIDE SHIPPING ON ORDERS OVER ${convertPrice(500)}`;
+            document.getElementById('currencyMenu').classList.add('hidden');
+            showSection(currentSection);
+        }
+
+        // Show section
+        function showSection(section) {
+            currentSection = section;
+            const content = document.getElementById('mainContent');
+            
+            if (section === 'home') {
+                content.innerHTML = getHomeHTML();
+            } else if (section === 'products') {
+                content.innerHTML = getProductsHTML();
+            } else if (section === 'order') {
+                content.innerHTML = getOrderHTML();
+            }
+            window.scrollTo(0, 0);
+        }
+
+        // Home HTML
+        function getHomeHTML() {
+            return `
+                <section class="py-20 px-4">
+                    <div class="max-w-7xl mx-auto">
+                        <div class="grid md:grid-cols-2 gap-12 items-center mb-20">
+                            <div>
+                                <div class="inline-flex items-center gap-2 bg-green-100 px-4 py-2 rounded-full mb-6 animate-bounce">
+                                    <span>⭐</span>
+                                    <span class="text-sm font-bold text-green-700">100% Organic & Pesticide-Free</span>
+                                </div>
+                                <h1 class="text-5xl md:text-7xl font-black mb-6 leading-tight">
+                                    <span class="bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                                        Farm Fresh
+                                    </span>
+                                    <br/>
+                                    <span class="text-gray-800">To Your Table</span>
+                                </h1>
+                                <p class="text-xl text-gray-600 mb-8 leading-relaxed">
+                                    Experience the pure taste of nature with our handpicked, organic produce. Delivered fresh from our farm to your doorstep daily.
+                                </p>
+                                
+                                <div class="flex flex-wrap gap-3 mb-6">
+                                    <div class="flex items-center gap-2 bg-blue-50 px-4 py-2 rounded-full border-2 border-blue-200">
+                                        <span class="text-2xl">🌍</span>
+                                        <span class="font-bold text-blue-700 text-sm">Worldwide Shipping</span>
+                                    </div>
+                                    <div class="flex items-center gap-2 bg-purple-50 px-4 py-2 rounded-full border-2 border-purple-200">
+                                        <span class="text-2xl">✈️</span>
+                                        <span class="font-bold text-purple-700 text-sm">Express Delivery</span>
+                                    </div>
+                                    <div class="flex items-center gap-2 bg-orange-50 px-4 py-2 rounded-full border-2 border-orange-200">
+                                        <span class="text-2xl">🏆</span>
+                                        <span class="font-bold text-orange-700 text-sm">Award Winning</span>
+                                    </div>
+                                </div>
+
+                                <div class="flex flex-wrap gap-4">
+                                    <button onclick="showSection('products')" class="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:shadow-2xl transition-all hover:scale-105">
+                                        Shop Now
+                                    </button>
+                                    <button onclick="showSection('order')" class="bg-white border-2 border-green-600 text-green-600 px-8 py-4 rounded-2xl font-bold text-lg hover:bg-green-50 transition-all hover:scale-105">
+                                        Place Order
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="relative">
+                                <div class="absolute -top-4 -left-4 bg-white rounded-2xl shadow-xl p-4 border-2 border-green-200 z-10 animate-pulse">
+                                    <div class="flex items-center gap-2">
+                                        <div class="text-3xl">🥕</div>
+                                        <div>
+                                            <div class="text-xs text-gray-500">Fresh Daily</div>
+                                            <div class="font-black text-green-600">100% Organic</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="absolute inset-0 bg-gradient-to-r from-green-400 to-emerald-400 rounded-3xl blur-3xl opacity-30 animate-pulse"></div>
+                                <div class="relative bg-white rounded-3xl shadow-2xl p-8 border border-green-100">
+                                    <img 
+                                        src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800" 
+                                        alt="Farm"
+                                        class="w-full h-80 object-cover rounded-2xl shadow-xl mb-6"
+                                    />
+                                    <div class="grid grid-cols-3 gap-4">
+                                        <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-4 rounded-xl text-center border border-green-100 hover:scale-110 transition">
+                                            <div class="text-3xl font-black text-green-600">100%</div>
+                                            <div class="text-xs font-semibold text-gray-600">Organic</div>
+                                        </div>
+                                        <div class="bg-gradient-to-br from-blue-50 to-cyan-50 p-4 rounded-xl text-center border border-blue-100 hover:scale-110 transition">
+                                            <div class="text-3xl font-black text-blue-600">24/7</div>
+                                            <div class="text-xs font-semibold text-gray-600">Delivery</div>
+                                        </div>
+                                        <div class="bg-gradient-to-br from-purple-50 to-pink-50 p-4 rounded-xl text-center border border-purple-100 hover:scale-110 transition">
+                                            <div class="text-3xl font-black text-purple-600">50+</div>
+                                            <div class="text-xs font-semibold text-gray-600">Countries</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Stats -->
+                        <div class="grid md:grid-cols-4 gap-6 mb-20">
+                            <div class="group bg-white rounded-3xl p-8 shadow-xl border border-gray-100 hover:shadow-2xl transition-all hover:scale-105">
+                                <div class="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
+                                    <span class="text-3xl">👥</span>
+                                </div>
+                                <div class="text-4xl font-black mb-2 bg-gradient-to-r from-green-500 to-emerald-500 bg-clip-text text-transparent">500+</div>
+                                <div class="text-gray-600 font-semibold">Happy Customers</div>
+                            </div>
+                            <div class="group bg-white rounded-3xl p-8 shadow-xl border border-gray-100 hover:shadow-2xl transition-all hover:scale-105">
+                                <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
+                                    <span class="text-3xl">📦</span>
+                                </div>
+                                <div class="text-4xl font-black mb-2 bg-gradient-to-r from-blue-500 to-cyan-500 bg-clip-text text-transparent">50+</div>
+                                <div class="text-gray-600 font-semibold">Products</div>
+                            </div>
+                            <div class="group bg-white rounded-3xl p-8 shadow-xl border border-gray-100 hover:shadow-2xl transition-all hover:scale-105">
+                                <div class="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
+                                    <span class="text-3xl">📈</span>
+                                </div>
+                                <div class="text-4xl font-black mb-2 bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">1000+</div>
+                                <div class="text-gray-600 font-semibold">Orders/Month</div>
+                            </div>
+                            <div class="group bg-white rounded-3xl p-8 shadow-xl border border-gray-100 hover:shadow-2xl transition-all hover:scale-105">
+                                <div class="w-16 h-16 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
+                                    <span class="text-3xl">🏆</span>
+                                </div>
+                                <div class="text-4xl font-black mb-2 bg-gradient-to-r from-orange-500 to-yellow-500 bg-clip-text text-transparent">5.0★</div>
+                                <div class="text-gray-600 font-semibold">Quality Rating</div>
+                            </div>
+                        </div>
+
+                        <!-- Features -->
+                        <div class="grid md:grid-cols-3 gap-8">
+                            <div class="bg-gradient-to-br from-green-500 to-emerald-600 rounded-3xl p-8 text-white shadow-2xl hover:scale-105 transition-all">
+                                <div class="text-5xl mb-4">🚚</div>
+                                <h3 class="text-2xl font-bold mb-3">Free Delivery</h3>
+                                <p class="text-green-50">Free home delivery on orders above ${convertPrice(500)}. Fresh products at your doorstep.</p>
+                            </div>
+                            <div class="bg-gradient-to-br from-blue-500 to-cyan-600 rounded-3xl p-8 text-white shadow-2xl hover:scale-105 transition-all">
+                                <div class="text-5xl mb-4">🛡️</div>
+                                <h3 class="text-2xl font-bold mb-3">100% Organic</h3>
+                                <p class="text-blue-50">No pesticides, no chemicals. Pure, natural, and healthy products.</p>
+                            </div>
+                            <div class="bg-gradient-to-br from-purple-500 to-pink-600 rounded-3xl p-8 text-white shadow-2xl hover:scale-105 transition-all">
+                                <div class="text-5xl mb-4">❤️</div>
+                                <h3 class="text-2xl font-bold mb-3">Farm Fresh</h3>
+                                <p class="text-purple-50">Harvested daily for maximum freshness and nutrition.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            `;
+        }
+
+        // Products HTML  
+        function getProductsHTML() {
+            let productsHTML = products.map((product, idx) => `
+                <div class="group bg-white rounded-3xl shadow-xl overflow-hidden hover:shadow-2xl transition-all hover:scale-105 border border-gray-100">
+                    <div class="relative overflow-hidden">
+                        <img 
+                            src="${product.image}" 
+                            alt="${product.name}"
+                            class="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                        <div class="absolute top-3 right-3 bg-green-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg flex items-center gap-1">
+                            📦 ${product.stock}
+                        </div>
+                        ${idx % 3 === 0 ? '<div class="absolute top-3 left-3 bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg animate-pulse">🔥 Best Seller</div>' : ''}
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">${product.name}</h3>
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <div class="text-2xl font-black text-green-600">${convertPrice(product.price)}</div>
+                                <div class="text-xs text-gray-500">per ${product.unit}</div>
+                            </div>
+                            <div class="flex items-center gap-1 bg-yellow-50 px-2 py-1 rounded-lg">
+                                <span class="text-yellow-500">⭐</span>
+                                <span class="text-sm font-bold text-yellow-700">4.9</span>
+                            </div>
+                        </div>
+                        <button onclick="addToCart()" class="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 rounded-xl font-bold hover:shadow-lg transition-all hover:scale-105">
+                            🛒 Add to Cart
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            return `
+                <section class="py-20 px-4">
+                    <div class="max-w-7xl mx-auto">
+                        <div class="text-center mb-12">
+                            <div class="flex items-center justify-center gap-4 mb-6">
+                                <span class="text-5xl">🥬</span>
+                                <h2 class="text-4xl md:text-5xl font-black bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                                    Our Products
+                                </h2>
+                                <span class="text-5xl">🍎</span>
+                            </div>
+                            <p class="text-xl text-gray-600 mb-6">Fresh, organic, and delivered daily worldwide</p>
+                            
+                            <div class="flex flex-wrap items-center justify-center gap-4">
+                                <div class="bg-green-50 px-6 py-3 rounded-full border-2 border-green-300 flex items-center gap-2">
+                                    <span>✅</span>
+                                    <span class="font-bold text-green-700">USDA Organic</span>
+                                </div>
+                                <div class="bg-blue-50 px-6 py-3 rounded-full border-2 border-blue-300 flex items-center gap-2">
+                                    <span>✅</span>
+                                    <span class="font-bold text-blue-700">EU Certified</span>
+                                </div>
+                                <div class="bg-purple-50 px-6 py-3 rounded-full border-2 border-purple-300 flex items-center gap-2">
+                                    <span>🏆</span>
+                                    <span class="font-bold text-purple-700">Non-GMO</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid md:grid-cols-3 lg:grid-cols-4 gap-6">
+                            ${productsHTML}
+                        </div>
+                    </div>
+                </section>
+            `;
+        }
+
+        // Order HTML
+        function getOrderHTML() {
+            return `
+                <section class="py-20 px-4">
+                    <div class="max-w-4xl mx-auto">
+                        <div class="text-center mb-12">
+                            <h2 class="text-4xl md:text-5xl font-black mb-4 bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                                Place Your Order
+                            </h2>
+                            <p class="text-xl text-gray-600">Fresh products delivered to your doorstep</p>
+                        </div>
+
+                        <div class="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
+                            <form onsubmit="placeOrder(event)" class="space-y-6">
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">Your Name *</label>
+                                    <input
+                                        type="text"
+                                        id="orderName"
+                                        required
+                                        placeholder="John Doe"
+                                        class="w-full px-6 py-4 border-2 border-gray-200 rounded-2xl focus:border-green-500 focus:outline-none text-gray-800 font-semibold"
+                                    />
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">Phone Number *</label>
+                                    <input
+                                        type="tel"
+                                        id="orderPhone"
+                                        required
+                                        placeholder="+1 234 567 8900"
+                                        class="w-full px-6 py-4 border-2 border-gray-200 rounded-2xl focus:border-green-500 focus:outline-none text-gray-800 font-semibold"
+                                    />
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">Delivery Address *</label>
+                                    <input
+                                        type="text"
+                                        id="orderAddress"
+                                        required
+                                        placeholder="123 Main Street, City, Country"
+                                        class="w-full px-6 py-4 border-2 border-gray-200 rounded-2xl focus:border-green-500 focus:outline-none text-gray-800 font-semibold"
+                                    />
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">Items to Order *</label>
+                                    <textarea
+                                        id="orderItems"
+                                        required
+                                        rows="4"
+                                        placeholder="e.g., 2kg Tomatoes, 1L Milk, 1kg Rice..."
+                                        class="w-full px-6 py-4 border-2 border-gray-200 rounded-2xl focus:border-green-500 focus:outline-none text-gray-800 font-semibold"
+                                    ></textarea>
+                                </div>
+                                <button
+                                    type="submit"
+                                    class="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-5 rounded-2xl font-black text-lg hover:shadow-2xl transition-all hover:scale-105 flex items-center justify-center gap-3"
+                                >
+                                    ✅ Place Order
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+            `;
+        }
+
+        // Place order
+        function placeOrder(e) {
+            e.preventDefault();
+            const name = document.getElementById('orderName').value;
+            const phone = document.getElementById('orderPhone').value;
+            const address = document.getElementById('orderAddress').value;
+            const items = document.getElementById('orderItems').value;
+            
+            alert(`🎉 Order placed successfully!\n\nName: ${name}\nPhone: ${phone}\nAddress: ${address}\nItems: ${items}`);
+            
+            // Save to localStorage
+            const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+            orders.push({ name, phone, address, items, date: new Date().toISOString() });
+            localStorage.setItem('orders', JSON.stringify(orders));
+            
+            // Reset form
+            document.getElementById('orderName').value = '';
+            document.getElementById('orderPhone').value = '';
+            document.getElementById('orderAddress').value = '';
+            document.getElementById('orderItems').value = '';
+        }
+
+        // Mouse movement effect
+        document.addEventListener('mousemove', (e) => {
+            const mouseBg = document.getElementById('mouseBg');
+            mouseBg.style.left = `${e.clientX / 30}px`;
+            mouseBg.style.top = `${e.clientY / 30}px`;
+        });
+
+        // Click outside to close menu
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.relative') || !e.target.closest('button')) {
+                document.getElementById('currencyMenu').classList.add('hidden');
+            }
+        });
+
+        // Initialize
+        showSection('home');
+    </script>
+</body>
+</html>
