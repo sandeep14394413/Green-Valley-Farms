@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Leaf, ShoppingCart, Phone, Mail, MapPin, User, Lock, Menu, X, Package, TrendingUp, Award, Users, Heart, Star, CheckCircle, Clock, Truck, Shield } from 'lucide-react';
+import { Leaf, ShoppingCart, Phone, Mail, MapPin, User, Menu, X, Package, TrendingUp, Award, Users, Heart, Star, CheckCircle, Clock, Truck, Shield } from 'lucide-react';
 
 const GreenValleyFarms = () => {
   const [activeSection, setActiveSection] = useState('home');
@@ -11,6 +11,10 @@ const GreenValleyFarms = () => {
   const [orders, setOrders] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [currency, setCurrency] = useState('USD');
+  const [language, setLanguage] = useState('EN');
+  const [showCurrencyMenu, setShowCurrencyMenu] = useState(false);
+  const [showLanguageMenu, setShowLanguageMenu] = useState(false);
   
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
   const [registerForm, setRegisterForm] = useState({
@@ -19,6 +23,30 @@ const GreenValleyFarms = () => {
   const [orderForm, setOrderForm] = useState({
     customerName: '', phone: '', address: '', items: '', notes: ''
   });
+
+  const currencies = {
+    USD: { symbol: '$', rate: 0.012, flag: '🇺🇸' },
+    EUR: { symbol: '€', rate: 0.011, flag: '🇪🇺' },
+    GBP: { symbol: '£', rate: 0.0095, flag: '🇬🇧' },
+    INR: { symbol: '₹', rate: 1, flag: '🇮🇳' },
+    AUD: { symbol: 'A$', rate: 0.018, flag: '🇦🇺' },
+    CAD: { symbol: 'C$', rate: 0.017, flag: '🇨🇦' },
+    JPY: { symbol: '¥', rate: 1.8, flag: '🇯🇵' },
+  };
+
+  const languages = {
+    EN: { name: 'English', flag: '🇬🇧' },
+    ES: { name: 'Español', flag: '🇪🇸' },
+    FR: { name: 'Français', flag: '🇫🇷' },
+    DE: { name: 'Deutsch', flag: '🇩🇪' },
+    HI: { name: 'हिंदी', flag: '🇮🇳' },
+    ZH: { name: '中文', flag: '🇨🇳' },
+  };
+
+  const convertPrice = (priceINR) => {
+    const converted = priceINR * currencies[currency].rate;
+    return `${currencies[currency].symbol}${converted.toFixed(2)}`;
+  };
 
   useEffect(() => {
     const handleMouse = (e) => setMousePos({ x: e.clientX, y: e.clientY });
@@ -173,9 +201,43 @@ const GreenValleyFarms = () => {
             top: `${mousePos.y / 30}px`
           }}
         ></div>
+        {/* Floating Emojis */}
+        <div className="absolute top-1/4 left-1/4 text-6xl opacity-10 animate-bounce" style={{animationDelay: '0s', animationDuration: '3s'}}>🥕</div>
+        <div className="absolute top-1/3 right-1/4 text-6xl opacity-10 animate-bounce" style={{animationDelay: '1s', animationDuration: '4s'}}>🍎</div>
+        <div className="absolute bottom-1/4 left-1/3 text-6xl opacity-10 animate-bounce" style={{animationDelay: '2s', animationDuration: '5s'}}>🌾</div>
+        <div className="absolute top-2/3 right-1/3 text-6xl opacity-10 animate-bounce" style={{animationDelay: '1.5s', animationDuration: '3.5s'}}>🥬</div>
+      </div>
+
+      {/* Floating Currency Indicator */}
+      <div className="fixed bottom-8 left-8 z-50 bg-white rounded-2xl shadow-2xl p-4 border-2 border-green-200 animate-pulse">
+        <div className="flex items-center gap-3">
+          <div className="text-3xl">{currencies[currency].flag}</div>
+          <div>
+            <div className="text-xs text-gray-500">Shopping in</div>
+            <div className="font-black text-green-600">{currency}</div>
+          </div>
+        </div>
       </div>
 
       <div className="relative z-10">
+        {/* Top Banner */}
+        <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white py-3 overflow-hidden">
+          <div className="flex items-center justify-center gap-8 animate-pulse">
+            <span className="font-bold flex items-center gap-2">
+              <span className="text-xl">🌍</span>
+              FREE WORLDWIDE SHIPPING ON ORDERS OVER {convertPrice(500)}
+            </span>
+            <span className="hidden md:flex items-center gap-2">
+              <span className="text-xl">⚡</span>
+              EXPRESS DELIVERY AVAILABLE
+            </span>
+            <span className="hidden lg:flex items-center gap-2">
+              <span className="text-xl">🏆</span>
+              AWARD WINNING ORGANIC FARM
+            </span>
+          </div>
+        </div>
+
         {/* Navigation */}
         <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-2xl shadow-lg border-b border-green-100">
           <div className="max-w-7xl mx-auto px-4 py-4">
@@ -200,6 +262,56 @@ const GreenValleyFarms = () => {
                 <button onClick={() => setActiveSection('products')} className="text-gray-700 hover:text-green-600 font-semibold transition hover:scale-110">Products</button>
                 <button onClick={() => setActiveSection('order')} className="text-gray-700 hover:text-green-600 font-semibold transition hover:scale-110">Order</button>
                 <button onClick={() => setActiveSection('customers')} className="text-gray-700 hover:text-green-600 font-semibold transition hover:scale-110">Customers</button>
+                
+                {/* Currency Selector */}
+                <div className="relative">
+                  <button 
+                    onClick={() => setShowCurrencyMenu(!showCurrencyMenu)}
+                    className="flex items-center gap-2 bg-gradient-to-r from-blue-50 to-cyan-50 px-4 py-2 rounded-full border-2 border-blue-200 hover:border-blue-400 transition"
+                  >
+                    <span className="text-xl">{currencies[currency].flag}</span>
+                    <span className="font-bold text-gray-700">{currency}</span>
+                  </button>
+                  {showCurrencyMenu && (
+                    <div className="absolute top-full mt-2 right-0 bg-white rounded-2xl shadow-2xl border border-gray-200 py-2 min-w-[150px] z-50">
+                      {Object.keys(currencies).map(curr => (
+                        <button
+                          key={curr}
+                          onClick={() => { setCurrency(curr); setShowCurrencyMenu(false); }}
+                          className="w-full px-4 py-2 hover:bg-green-50 flex items-center gap-3 transition"
+                        >
+                          <span className="text-xl">{currencies[curr].flag}</span>
+                          <span className="font-semibold text-gray-700">{curr}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Language Selector */}
+                <div className="relative">
+                  <button 
+                    onClick={() => setShowLanguageMenu(!showLanguageMenu)}
+                    className="flex items-center gap-2 bg-gradient-to-r from-purple-50 to-pink-50 px-4 py-2 rounded-full border-2 border-purple-200 hover:border-purple-400 transition"
+                  >
+                    <span className="text-xl">{languages[language].flag}</span>
+                    <span className="font-bold text-gray-700">{language}</span>
+                  </button>
+                  {showLanguageMenu && (
+                    <div className="absolute top-full mt-2 right-0 bg-white rounded-2xl shadow-2xl border border-gray-200 py-2 min-w-[180px] z-50">
+                      {Object.keys(languages).map(lang => (
+                        <button
+                          key={lang}
+                          onClick={() => { setLanguage(lang); setShowLanguageMenu(false); }}
+                          className="w-full px-4 py-2 hover:bg-green-50 flex items-center gap-3 transition"
+                        >
+                          <span className="text-xl">{languages[lang].flag}</span>
+                          <span className="font-semibold text-gray-700">{languages[lang].name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
                 
                 {isLoggedIn ? (
                   <div className="flex items-center gap-4">
@@ -236,7 +348,7 @@ const GreenValleyFarms = () => {
               {/* Hero Section */}
               <div className="grid md:grid-cols-2 gap-12 items-center mb-20">
                 <div>
-                  <div className="inline-flex items-center gap-2 bg-green-100 px-4 py-2 rounded-full mb-6">
+                  <div className="inline-flex items-center gap-2 bg-green-100 px-4 py-2 rounded-full mb-6 animate-bounce">
                     <Star className="w-4 h-4 text-green-600" />
                     <span className="text-sm font-bold text-green-700">100% Organic & Pesticide-Free</span>
                   </div>
@@ -250,6 +362,23 @@ const GreenValleyFarms = () => {
                   <p className="text-xl text-gray-600 mb-8 leading-relaxed">
                     Experience the pure taste of nature with our handpicked, organic produce. Delivered fresh from our farm to your doorstep daily.
                   </p>
+                  
+                  {/* International Shipping Badge */}
+                  <div className="flex flex-wrap gap-3 mb-6">
+                    <div className="flex items-center gap-2 bg-blue-50 px-4 py-2 rounded-full border-2 border-blue-200">
+                      <span className="text-2xl">🌍</span>
+                      <span className="font-bold text-blue-700 text-sm">Worldwide Shipping</span>
+                    </div>
+                    <div className="flex items-center gap-2 bg-purple-50 px-4 py-2 rounded-full border-2 border-purple-200">
+                      <span className="text-2xl">✈️</span>
+                      <span className="font-bold text-purple-700 text-sm">Express Delivery</span>
+                    </div>
+                    <div className="flex items-center gap-2 bg-orange-50 px-4 py-2 rounded-full border-2 border-orange-200">
+                      <span className="text-2xl">🏆</span>
+                      <span className="font-bold text-orange-700 text-sm">Award Winning</span>
+                    </div>
+                  </div>
+
                   <div className="flex flex-wrap gap-4">
                     <button onClick={() => setActiveSection('products')} className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:shadow-2xl transition-all hover:scale-105 flex items-center gap-2">
                       <Package className="w-6 h-6" />
@@ -262,6 +391,37 @@ const GreenValleyFarms = () => {
                 </div>
                 
                 <div className="relative">
+                  {/* Floating Badges */}
+                  <div className="absolute -top-4 -left-4 bg-white rounded-2xl shadow-xl p-4 border-2 border-green-200 z-10 animate-pulse">
+                    <div className="flex items-center gap-2">
+                      <div className="text-3xl">🥕</div>
+                      <div>
+                        <div className="text-xs text-gray-500">Fresh Daily</div>
+                        <div className="font-black text-green-600">100% Organic</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="absolute -top-4 -right-4 bg-white rounded-2xl shadow-xl p-4 border-2 border-blue-200 z-10" style={{animationDelay: '0.5s'}}>
+                    <div className="flex items-center gap-2">
+                      <div className="text-3xl">🌾</div>
+                      <div>
+                        <div className="text-xs text-gray-500">Global</div>
+                        <div className="font-black text-blue-600">Shipping</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="absolute -bottom-4 -left-4 bg-white rounded-2xl shadow-xl p-4 border-2 border-purple-200 z-10 animate-pulse" style={{animationDelay: '1s'}}>
+                    <div className="flex items-center gap-2">
+                      <div className="text-3xl">⭐</div>
+                      <div>
+                        <div className="text-xs text-gray-500">Rating</div>
+                        <div className="font-black text-purple-600">5.0/5.0</div>
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-emerald-400 rounded-3xl blur-3xl opacity-30 animate-pulse"></div>
                   <div className="relative bg-white rounded-3xl shadow-2xl p-8 border border-green-100">
                     <img 
@@ -270,17 +430,17 @@ const GreenValleyFarms = () => {
                       className="w-full h-80 object-cover rounded-2xl shadow-xl mb-6"
                     />
                     <div className="grid grid-cols-3 gap-4">
-                      <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-4 rounded-xl text-center border border-green-100">
+                      <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-4 rounded-xl text-center border border-green-100 hover:scale-110 transition">
                         <div className="text-3xl font-black text-green-600">100%</div>
                         <div className="text-xs font-semibold text-gray-600">Organic</div>
                       </div>
-                      <div className="bg-gradient-to-br from-blue-50 to-cyan-50 p-4 rounded-xl text-center border border-blue-100">
+                      <div className="bg-gradient-to-br from-blue-50 to-cyan-50 p-4 rounded-xl text-center border border-blue-100 hover:scale-110 transition">
                         <div className="text-3xl font-black text-blue-600">24/7</div>
                         <div className="text-xs font-semibold text-gray-600">Delivery</div>
                       </div>
-                      <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-4 rounded-xl text-center border border-purple-100">
-                        <div className="text-3xl font-black text-purple-600">500+</div>
-                        <div className="text-xs font-semibold text-gray-600">Customers</div>
+                      <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-4 rounded-xl text-center border border-purple-100 hover:scale-110 transition">
+                        <div className="text-3xl font-black text-purple-600">50+</div>
+                        <div className="text-xs font-semibold text-gray-600">Countries</div>
                       </div>
                     </div>
                   </div>
@@ -302,12 +462,46 @@ const GreenValleyFarms = () => {
                 ))}
               </div>
 
+              {/* Why Choose Us Section */}
+              <div className="bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 rounded-3xl p-12 mb-20 border-2 border-green-200 shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 text-9xl opacity-5">🌱</div>
+                <div className="absolute bottom-0 left-0 text-9xl opacity-5">🌿</div>
+                
+                <div className="relative z-10">
+                  <div className="text-center mb-12">
+                    <h2 className="text-5xl font-black text-gray-800 mb-4">Why Choose Green Valley?</h2>
+                    <p className="text-xl text-gray-600">Experience the difference of truly organic farming</p>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    {[
+                      { icon: '🌱', title: 'Farm to Table', desc: 'Direct from our organic farms to your kitchen', color: 'from-green-500 to-emerald-500' },
+                      { icon: '🧪', title: 'Lab Tested', desc: 'Every batch tested for quality and purity', color: 'from-blue-500 to-cyan-500' },
+                      { icon: '♻️', title: 'Sustainable', desc: 'Eco-friendly packaging and farming practices', color: 'from-teal-500 to-green-500' },
+                      { icon: '🌍', title: 'Global Reach', desc: 'Shipping fresh produce to 50+ countries', color: 'from-purple-500 to-pink-500' },
+                      { icon: '❄️', title: 'Cold Chain', desc: 'Temperature controlled throughout delivery', color: 'from-cyan-500 to-blue-500' },
+                      { icon: '👨‍🌾', title: 'Family Farms', desc: 'Supporting local organic farmers worldwide', color: 'from-orange-500 to-red-500' },
+                      { icon: '📦', title: 'Safe Packaging', desc: 'Biodegradable and recyclable materials', color: 'from-lime-500 to-green-500' },
+                      { icon: '💯', title: 'Guaranteed', desc: '100% satisfaction or money back promise', color: 'from-pink-500 to-rose-500' },
+                    ].map((item, i) => (
+                      <div key={i} className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all hover:scale-105 border border-gray-100 text-center">
+                        <div className="text-5xl mb-4">{item.icon}</div>
+                        <h3 className={`text-lg font-black mb-2 bg-gradient-to-r ${item.color} bg-clip-text text-transparent`}>
+                          {item.title}
+                        </h3>
+                        <p className="text-sm text-gray-600">{item.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
               {/* Features Section */}
-              <div className="grid md:grid-cols-3 gap-8">
+              <div className="grid md:grid-cols-3 gap-8 mb-20">
                 <div className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-3xl p-8 text-white shadow-2xl hover:scale-105 transition-all">
                   <Truck className="w-12 h-12 mb-4" />
                   <h3 className="text-2xl font-bold mb-3">Free Delivery</h3>
-                  <p className="text-green-50">Free home delivery on orders above ₹500. Fresh products at your doorstep.</p>
+                  <p className="text-green-50">Free home delivery on orders above {convertPrice(500)}. Fresh products at your doorstep.</p>
                 </div>
                 <div className="bg-gradient-to-br from-blue-500 to-cyan-600 rounded-3xl p-8 text-white shadow-2xl hover:scale-105 transition-all">
                   <Shield className="w-12 h-12 mb-4" />
@@ -320,6 +514,77 @@ const GreenValleyFarms = () => {
                   <p className="text-purple-50">Harvested daily for maximum freshness and nutrition.</p>
                 </div>
               </div>
+
+              {/* International Shipping Section */}
+              <div className="bg-gradient-to-br from-indigo-50 via-blue-50 to-cyan-50 rounded-3xl p-12 mb-20 border-2 border-blue-200 shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-blue-300/20 rounded-full blur-3xl"></div>
+                <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-300/20 rounded-full blur-3xl"></div>
+                
+                <div className="relative z-10">
+                  <div className="text-center mb-12">
+                    <div className="inline-flex items-center gap-2 bg-white px-6 py-3 rounded-full shadow-lg mb-6">
+                      <span className="text-4xl">🌍</span>
+                      <span className="font-black text-2xl bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                        Global Reach
+                      </span>
+                    </div>
+                    <h2 className="text-5xl font-black text-gray-800 mb-4">We Ship Worldwide</h2>
+                    <p className="text-xl text-gray-600">Delivering fresh, organic produce to over 50 countries</p>
+                  </div>
+
+                  <div className="grid md:grid-cols-4 gap-4 mb-8">
+                    {[
+                      { country: 'USA', flag: '🇺🇸', time: '2-3 days' },
+                      { country: 'UK', flag: '🇬🇧', time: '3-4 days' },
+                      { country: 'Australia', flag: '🇦🇺', time: '4-5 days' },
+                      { country: 'Canada', flag: '🇨🇦', time: '2-3 days' },
+                      { country: 'Germany', flag: '🇩🇪', time: '3-4 days' },
+                      { country: 'France', flag: '🇫🇷', time: '3-4 days' },
+                      { country: 'Japan', flag: '🇯🇵', time: '4-5 days' },
+                      { country: 'India', flag: '🇮🇳', time: '1-2 days' },
+                    ].map((item, i) => (
+                      <div key={i} className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all hover:scale-105 text-center border-2 border-gray-100">
+                        <div className="text-5xl mb-3">{item.flag}</div>
+                        <div className="font-bold text-gray-800 mb-1">{item.country}</div>
+                        <div className="text-xs text-gray-500 flex items-center justify-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {item.time}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="grid md:grid-cols-3 gap-6">
+                    <div className="bg-white rounded-2xl p-6 shadow-lg flex items-center gap-4">
+                      <div className="bg-gradient-to-r from-green-500 to-emerald-500 p-4 rounded-xl">
+                        <Package className="w-8 h-8 text-white" />
+                      </div>
+                      <div>
+                        <div className="font-black text-gray-800 text-lg">Secure Packaging</div>
+                        <div className="text-sm text-gray-600">Temperature controlled</div>
+                      </div>
+                    </div>
+                    <div className="bg-white rounded-2xl p-6 shadow-lg flex items-center gap-4">
+                      <div className="bg-gradient-to-r from-blue-500 to-cyan-500 p-4 rounded-xl">
+                        <Truck className="w-8 h-8 text-white" />
+                      </div>
+                      <div>
+                        <div className="font-black text-gray-800 text-lg">Express Shipping</div>
+                        <div className="text-sm text-gray-600">Track your order</div>
+                      </div>
+                    </div>
+                    <div className="bg-white rounded-2xl p-6 shadow-lg flex items-center gap-4">
+                      <div className="bg-gradient-to-r from-purple-500 to-pink-500 p-4 rounded-xl">
+                        <Shield className="w-8 h-8 text-white" />
+                      </div>
+                      <div>
+                        <div className="font-black text-gray-800 text-lg">Quality Guarantee</div>
+                        <div className="text-sm text-gray-600">100% satisfaction</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </section>
         )}
@@ -329,14 +594,38 @@ const GreenValleyFarms = () => {
           <section className="py-20 px-4">
             <div className="max-w-7xl mx-auto">
               <div className="text-center mb-12">
-                <h2 className="text-5xl font-black mb-4 bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                  Our Products
-                </h2>
-                <p className="text-xl text-gray-600">Fresh, organic, and delivered daily</p>
+                <div className="flex items-center justify-center gap-4 mb-6">
+                  <span className="text-5xl">🥬</span>
+                  <h2 className="text-5xl font-black bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                    Our Products
+                  </h2>
+                  <span className="text-5xl">🍎</span>
+                </div>
+                <p className="text-xl text-gray-600 mb-6">Fresh, organic, and delivered daily to {Object.keys(currencies).length} currencies worldwide</p>
+                
+                {/* Quality Badges */}
+                <div className="flex flex-wrap items-center justify-center gap-4">
+                  <div className="bg-green-50 px-6 py-3 rounded-full border-2 border-green-300 flex items-center gap-2">
+                    <CheckCircle className="w-5 h-5 text-green-600" />
+                    <span className="font-bold text-green-700">USDA Organic</span>
+                  </div>
+                  <div className="bg-blue-50 px-6 py-3 rounded-full border-2 border-blue-300 flex items-center gap-2">
+                    <CheckCircle className="w-5 h-5 text-blue-600" />
+                    <span className="font-bold text-blue-700">EU Certified</span>
+                  </div>
+                  <div className="bg-purple-50 px-6 py-3 rounded-full border-2 border-purple-300 flex items-center gap-2">
+                    <Award className="w-5 h-5 text-purple-600" />
+                    <span className="font-bold text-purple-700">Non-GMO</span>
+                  </div>
+                  <div className="bg-orange-50 px-6 py-3 rounded-full border-2 border-orange-300 flex items-center gap-2">
+                    <Star className="w-5 h-5 text-orange-600 fill-orange-600" />
+                    <span className="font-bold text-orange-700">Fair Trade</span>
+                  </div>
+                </div>
               </div>
 
               <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {products.map((product) => (
+                {products.map((product, idx) => (
                   <div key={product.id} className="group bg-white rounded-3xl shadow-xl overflow-hidden hover:shadow-2xl transition-all hover:scale-105 border border-gray-100">
                     <div className="relative overflow-hidden">
                       <img 
@@ -344,25 +633,82 @@ const GreenValleyFarms = () => {
                         alt={product.name}
                         className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
                       />
-                      <div className="absolute top-3 right-3 bg-green-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
-                        In Stock: {product.stock}
+                      <div className="absolute top-3 right-3 bg-green-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg flex items-center gap-1">
+                        <Package className="w-3 h-3" />
+                        {product.stock}
                       </div>
+                      {idx % 3 === 0 && (
+                        <div className="absolute top-3 left-3 bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg animate-pulse">
+                          🔥 Best Seller
+                        </div>
+                      )}
+                      {idx % 4 === 0 && idx !== 0 && (
+                        <div className="absolute top-3 left-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+                          ✨ New
+                        </div>
+                      )}
                     </div>
                     <div className="p-6">
                       <h3 className="text-xl font-bold text-gray-800 mb-2">{product.name}</h3>
                       <div className="flex items-center justify-between mb-4">
-                        <span className="text-2xl font-black text-green-600">₹{product.price}</span>
-                        <span className="text-sm text-gray-500">per {product.unit}</span>
+                        <div>
+                          <div className="text-2xl font-black text-green-600">{convertPrice(product.price)}</div>
+                          <div className="text-xs text-gray-500">per {product.unit}</div>
+                        </div>
+                        <div className="flex items-center gap-1 bg-yellow-50 px-2 py-1 rounded-lg">
+                          <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                          <span className="text-sm font-bold text-yellow-700">4.9</span>
+                        </div>
                       </div>
                       <button
                         onClick={() => addToCart(product)}
-                        className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 rounded-xl font-bold hover:shadow-lg transition-all hover:scale-105"
+                        className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 rounded-xl font-bold hover:shadow-lg transition-all hover:scale-105 flex items-center justify-center gap-2"
                       >
+                        <ShoppingCart className="w-4 h-4" />
                         Add to Cart
                       </button>
                     </div>
                   </div>
                 ))}
+              </div>
+
+              {/* Testimonials Section */}
+              <div className="mt-20">
+                <div className="text-center mb-12">
+                  <h2 className="text-5xl font-black mb-4 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                    What Our Customers Say
+                  </h2>
+                  <p className="text-xl text-gray-600">Loved by customers around the globe</p>
+                </div>
+
+                <div className="grid md:grid-cols-3 gap-8">
+                  {[
+                    { name: 'Sarah Johnson', country: 'USA', flag: '🇺🇸', text: 'The freshest vegetables I\'ve ever ordered online! Delivered perfectly packed and on time.', rating: 5 },
+                    { name: 'Hiroshi Tanaka', country: 'Japan', flag: '🇯🇵', text: 'Amazing quality produce. The organic certification gives me peace of mind for my family.', rating: 5 },
+                    { name: 'Emma Schmidt', country: 'Germany', flag: '🇩🇪', text: 'Exceeded my expectations! The express shipping ensured everything arrived fresh and delicious.', rating: 5 },
+                    { name: 'Rajesh Kumar', country: 'India', flag: '🇮🇳', text: 'Farm-to-table quality at reasonable prices. The best organic farm I\'ve found!', rating: 5 },
+                    { name: 'Sophie Martin', country: 'France', flag: '🇫🇷', text: 'Je suis impressionné! The vegetables taste just like from my grandmother\'s garden.', rating: 5 },
+                    { name: 'James Wilson', country: 'UK', flag: '🇬🇧', text: 'Brilliant service! The produce quality is consistently excellent. Highly recommend!', rating: 5 },
+                  ].map((review, i) => (
+                    <div key={i} className="bg-white rounded-3xl p-8 shadow-xl border border-gray-100 hover:shadow-2xl transition-all hover:scale-105">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="text-4xl">{review.flag}</div>
+                          <div>
+                            <div className="font-bold text-gray-800">{review.name}</div>
+                            <div className="text-sm text-gray-500">{review.country}</div>
+                          </div>
+                        </div>
+                        <div className="flex gap-1">
+                          {[...Array(review.rating)].map((_, j) => (
+                            <Star key={j} className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                          ))}
+                        </div>
+                      </div>
+                      <p className="text-gray-600 italic">"{review.text}"</p>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </section>
@@ -397,7 +743,7 @@ const GreenValleyFarms = () => {
                       type="tel"
                       value={orderForm.phone}
                       onChange={(e) => setOrderForm({...orderForm, phone: e.target.value})}
-                      placeholder="+91 98765 43210"
+                      placeholder="+1 234 567 8900"
                       className="w-full px-6 py-4 border-2 border-gray-200 rounded-2xl focus:border-green-500 focus:outline-none text-gray-800 font-semibold"
                     />
                   </div>
@@ -407,7 +753,7 @@ const GreenValleyFarms = () => {
                       type="text"
                       value={orderForm.address}
                       onChange={(e) => setOrderForm({...orderForm, address: e.target.value})}
-                      placeholder="123 Main Street, City"
+                      placeholder="123 Main Street, City, Country"
                       className="w-full px-6 py-4 border-2 border-gray-200 rounded-2xl focus:border-green-500 focus:outline-none text-gray-800 font-semibold"
                     />
                   </div>
@@ -619,24 +965,92 @@ const GreenValleyFarms = () => {
         )}
 
         {/* Footer */}
-        <footer className="bg-gradient-to-r from-green-600 to-emerald-600 text-white py-12 px-4 mt-20">
-          <div className="max-w-7xl mx-auto text-center">
-            <div className="flex items-center justify-center gap-3 mb-6">
-              <Leaf className="w-10 h-10" />
-              <span className="text-3xl font-black">Green Valley Farms</span>
-            </div>
-            <p className="text-green-100 mb-6 text-lg">Fresh • Organic • Delivered Daily</p>
-            <div className="flex items-center justify-center gap-8 mb-6">
-              <div className="flex items-center gap-2">
-                <Phone className="w-5 h-5" />
-                <span>+91 98765 43210</span>
+        <footer className="bg-gradient-to-r from-green-600 to-emerald-600 text-white py-16 px-4 mt-20 relative overflow-hidden">
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-10 left-10 text-8xl">🌾</div>
+            <div className="absolute top-20 right-20 text-8xl">🥕</div>
+            <div className="absolute bottom-10 left-1/4 text-8xl">🍎</div>
+            <div className="absolute bottom-20 right-1/3 text-8xl">🌿</div>
+          </div>
+
+          <div className="max-w-7xl mx-auto relative z-10">
+            <div className="grid md:grid-cols-4 gap-12 mb-12">
+              <div>
+                <div className="flex items-center gap-3 mb-6">
+                  <Leaf className="w-10 h-10" />
+                  <span className="text-2xl font-black">Green Valley</span>
+                </div>
+                <p className="text-green-100 mb-4">Delivering farm-fresh organic produce to your doorstep since 2020.</p>
+                <div className="flex gap-2">
+                  {['🇺🇸', '🇬🇧', '🇪🇺', '🇦🇺', '🇯🇵', '🇮🇳'].map((flag, i) => (
+                    <div key={i} className="text-2xl bg-white/20 p-2 rounded-lg hover:bg-white/30 transition cursor-pointer">
+                      {flag}
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Mail className="w-5 h-5" />
-                <span>info@greenvalleyfarms.com</span>
+
+              <div>
+                <h3 className="text-xl font-bold mb-4">Quick Links</h3>
+                <div className="space-y-2">
+                  <button onClick={() => setActiveSection('home')} className="block hover:text-green-200 transition">Home</button>
+                  <button onClick={() => setActiveSection('products')} className="block hover:text-green-200 transition">Products</button>
+                  <button onClick={() => setActiveSection('order')} className="block hover:text-green-200 transition">Order Now</button>
+                  <button onClick={() => setActiveSection('customers')} className="block hover:text-green-200 transition">Customers</button>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-xl font-bold mb-4">We Accept</h3>
+                <div className="space-y-2 text-green-100">
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl">💳</span>
+                    <span>All Major Credit Cards</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl">💰</span>
+                    <span>PayPal & Stripe</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl">🏦</span>
+                    <span>Bank Transfer</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl">📱</span>
+                    <span>Mobile Payments</span>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-xl font-bold mb-4">Contact Us</h3>
+                <div className="space-y-3 text-green-100">
+                  <div className="flex items-center gap-2">
+                    <Phone className="w-5 h-5" />
+                    <span>+1-800-FARM-FRESH</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Mail className="w-5 h-5" />
+                    <span>hello@greenvalley.com</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-5 h-5" />
+                    <span>Global Headquarters</span>
+                  </div>
+                </div>
               </div>
             </div>
-            <p className="text-green-200 text-sm">© 2026 Green Valley Farms. All rights reserved.</p>
+
+            <div className="border-t border-green-400/30 pt-8">
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <p className="text-green-200 text-sm">© 2026 Green Valley Farms. All rights reserved. Shipping to 50+ countries worldwide 🌍</p>
+                <div className="flex gap-4 text-sm text-green-200">
+                  <button className="hover:text-white transition">Privacy Policy</button>
+                  <button className="hover:text-white transition">Terms of Service</button>
+                  <button className="hover:text-white transition">Refund Policy</button>
+                </div>
+              </div>
+            </div>
           </div>
         </footer>
       </div>
